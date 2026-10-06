@@ -1,0 +1,30 @@
+flowchart TB
+    ES["Estudiante votante"]
+    CE["Comité electoral"]
+    AU["Auditor"]
+    subgraph APP["VotoEPIS — Monolito modular (un solo despliegue)"]
+        API["Capa de presentación: API REST + web responsive"]
+        M1["Elección y<br/>padrón"]
+        M2["Autenticación<br/>(OTP por correo)"]
+        M3["Votación"]
+        M4["Conteo y<br/>resultados"]
+        M5["Auditoría"]
+        INF["Capa de infraestructura: repositorios y adaptadores externos"]
+    end
+    subgraph PG["PostgreSQL — un servidor, dos esquemas con roles distintos"]
+        DBP[("Esquema padron<br/>(padrón y participación)")]
+        DBU[("Esquema urna<br/>(votos anónimos)")]
+    end
+    SMTP["Servidor de correo<br/>institucional (SMTP)"]
+    ES & CE & AU --> API
+    API --> M1 & M2 & M3 & M4 & M5
+    M1 & M2 & M3 & M4 & M5 --> INF
+    INF --> DBP
+    INF --> DBU
+    INF --> SMTP
+    classDef mod fill:#E8F5E9,stroke:#2E7D32,color:#000
+    classDef ext fill:#F2F2F2,stroke:#7F7F7F,color:#000,stroke-dasharray: 4 3
+    classDef usr fill:#FDEDEC,stroke:#C8310E,color:#000
+    class M1,M2,M3,M4,M5 mod
+    class SMTP ext
+    class ES,CE,AU usr
