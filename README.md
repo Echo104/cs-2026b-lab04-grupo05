@@ -1,10 +1,10 @@
 # VotoEPIS — Laboratorio 04: Fundamentos de arquitectura de software
-Construcción de Software · EPIS-UNSA · 2026-B · Grupo 
+Construcción de Software · EPIS-UNSA · 2026-B · Grupo 05
 
 ## Integrantes
 | Nombre | Rol en el laboratorio (p. ej., redactor de ADR, diagramador, verificador de IA) |
 |--------|------------------------------------------------------------------------------|
-| <Eduardo Choque> | <Todos> |
+| Eduardo Choque | Todos |
 
 ## Caso
 VotoEPIS es una plataforma web para la elección digital de delegados estudiantiles de la EPIS. Los estudiantes votan una sola vez y en secreto, el comité electoral gestiona el padrón y publica resultados y acta, y un auditor puede verificar el conteo de forma independiente. El MVP debe estar en producción en 1 mes con un equipo de 3 developers y un único servidor de bajo costo. El **atributo de calidad crítico** es la seguridad (integridad y confidencialidad): 0 votos duplicados y recuento independiente que coincide al 100 % con el oficial.
