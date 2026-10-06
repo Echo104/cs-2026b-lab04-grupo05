@@ -1,0 +1,32 @@
+@startuml
+skinparam dpi 220
+skinparam componentStyle rectangle
+skinparam defaultFontName Arial
+skinparam backgroundColor white
+title Alternativa A (descartada): VotoEPIS con monolito en capas
+actor "Estudiante votante" as E
+actor "Comité electoral" as C
+actor "Auditor" as A
+node "Servidor (VPS)" {
+  package "Monolito en capas" {
+    component "Presentación\n(vistas y API REST)" as PRES
+    component "Lógica de negocio\n(padrón, votación, conteo, auditoría)" as LOG
+    component "Acceso a datos" as DAO
+  }
+}
+database "PostgreSQL\n(esquema único)" as DB
+cloud "Servidor de correo (SMTP)" as SMTP
+E --> PRES
+C --> PRES
+A --> PRES
+PRES --> LOG
+LOG --> DAO
+DAO --> DB
+LOG --> SMTP
+note bottom of LOG
+  Puntaje 3,90 frente a 4,05 del monolito modular.
+  Sin límites internos entre Padrón y Votación: un error
+  podría vincular identidad y voto (seguridad 3/5).
+  Modificabilidad 2/5. Válida solo si el plazo fuera el criterio dominante.
+end note
+@enduml
