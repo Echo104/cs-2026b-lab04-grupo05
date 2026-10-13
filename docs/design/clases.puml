@@ -1,0 +1,87 @@
+@startuml clases-votacion
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam classBackgroundColor #EEF2F8
+skinparam classBorderColor #1A3A5C
+title VotoEPIS — Módulos Elección y Votación (diseño)
+skinparam nodesep 25
+skinparam ranksep 40
+
+class Estudiante {
+  - id: UUID
+  - correoInstitucional: String
+}
+class Eleccion {
+  - id: UUID
+  - nombre: String
+  - apertura: DateTime
+  - cierre: DateTime
+  - estado: EstadoEleccion
+  - totalPadron: int
+  + configurar(nombre: String, apertura: DateTime, cierre: DateTime, totalPadron: int): void
+  + agregarLista(lista: Lista): void
+  + abrir(): void
+  + estaAbierta(ahora: DateTime): bool
+  + cerrar(ahora: DateTime): void
+  + escrutar(votos: int, participaciones: int): void
+  + publicar(actaFirmada: bool): void
+}
+class Lista {
+  - id: UUID
+  - nombre: String
+}
+enum EstadoEleccion {
+  CONFIGURADA
+  ABIERTA
+  CERRADA
+  ESCRUTADA
+  PUBLICADA
+}
+class Participacion {
+  - fechaHora: DateTime
+  + emitirComprobante(): Comprobante
+}
+class Voto {
+  - id: UUID
+}
+class Comprobante {
+  - codigo: String
+  - fechaHora: DateTime
+}
+interface NotificadorCorreo <<puerto>> {
+  + enviarComprobante(correo: String, comprobante: Comprobante): void
+}
+interface RepositorioVotacion <<puerto>> {
+  + buscarEleccion(id: UUID): Eleccion
+  + buscarLista(id: UUID, eleccionId: UUID): Lista
+  + buscarEstudiante(id: UUID): Estudiante
+  + registrar(participacion: Participacion, voto: Voto): void
+}
+class SmtpAdapter <<adaptador>>
+class PostgresRepositorioVotacion <<adaptador>>
+class ServicioVotacion <<servicio>> {
+  + emitirVoto(estudianteId: UUID, eleccionId: UUID, listaId: UUID): Comprobante
+}
+
+Eleccion "1" *-- "1..*" Lista : ofrece >
+Estudiante "1" -- "0..*" Participacion : participa >
+Eleccion "1" -- "0..*" Participacion : registra >
+Eleccion "1" -- "0..*" Voto : urna >
+Lista "1" -- "0..*" Voto : recibe >
+Eleccion "0..*" --> "1" EstadoEleccion
+NotificadorCorreo <|.. SmtpAdapter
+RepositorioVotacion <|.. PostgresRepositorioVotacion
+Participacion ..> Comprobante
+ServicioVotacion ..> Participacion
+ServicioVotacion ..> Voto
+ServicioVotacion ..> Comprobante
+ServicioVotacion ..> RepositorioVotacion
+ServicioVotacion ..> NotificadorCorreo
+
+note right of Voto
+  Sin asociación con Estudiante
+  ni con Participacion, y sin
+  marca de tiempo (ADR-002, R-06).
+end note
+@enduml
