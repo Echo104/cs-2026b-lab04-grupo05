@@ -1,0 +1,81 @@
+@startuml classes_votacion
+set namespaceSeparator none
+class "Comprobante" as src.votacion.dominio.Comprobante {
+  codigo : str
+  fecha_hora : datetime
+}
+class "Eleccion" as src.votacion.dominio.Eleccion {
+  apertura : datetime | None
+  cierre : datetime | None
+  estado
+  id : UUID
+  listas : list[Lista]
+  nombre : str
+  total_padron : int
+  abrir() -> None
+  agregar_lista(lista: Lista) -> None
+  cerrar(ahora: datetime) -> None
+  configurar(nombre: str, apertura: datetime, cierre: datetime, total_padron: int) -> None
+  escrutar(votos: int, participaciones: int) -> None
+  esta_abierta(ahora: datetime) -> bool
+  publicar(acta_firmada: bool) -> None
+}
+class "<color:red>EleccionNoAbierta</color>" as src.votacion.dominio.EleccionNoAbierta {
+}
+class "<color:red>ErrorTransitorio</color>" as src.votacion.dominio.ErrorTransitorio {
+}
+class "EstadoEleccion" as src.votacion.dominio.EstadoEleccion {
+  name
+}
+class "Estudiante" as src.votacion.dominio.Estudiante {
+  correo_institucional : str
+  id : UUID
+}
+class "Lista" as src.votacion.dominio.Lista {
+  id : UUID
+  nombre : str
+}
+class "NotificadorCorreo" as src.votacion.dominio.NotificadorCorreo {
+  {abstract}enviar_comprobante(correo: str, comprobante: Comprobante) -> None
+}
+class "Participacion" as src.votacion.dominio.Participacion {
+  eleccion
+  estudiante
+  fecha_hora : datetime
+  emitir_comprobante() -> Comprobante
+}
+class "<color:red>ParticipacionDuplicada</color>" as src.votacion.dominio.ParticipacionDuplicada {
+}
+class "PostgresRepositorioVotacion" as src.votacion.dominio.PostgresRepositorioVotacion {
+  {abstract}buscar_eleccion(id: UUID) -> Eleccion
+  {abstract}buscar_estudiante(id: UUID) -> Estudiante
+  {abstract}buscar_lista(id: UUID, eleccion_id: UUID) -> Lista
+  {abstract}registrar(participacion: Participacion, voto: Voto) -> None
+}
+class "RepositorioVotacion" as src.votacion.dominio.RepositorioVotacion {
+  {abstract}buscar_eleccion(id: UUID) -> Eleccion
+  {abstract}buscar_estudiante(id: UUID) -> Estudiante
+  {abstract}buscar_lista(id: UUID, eleccion_id: UUID) -> Lista
+  {abstract}registrar(participacion: Participacion, voto: Voto) -> None
+}
+class "ServicioVotacion" as src.votacion.dominio.ServicioVotacion {
+  emitir_voto(estudiante_id: UUID, eleccion_id: UUID, lista_id: UUID) -> Comprobante
+}
+class "SmtpAdapter" as src.votacion.dominio.SmtpAdapter {
+  {abstract}enviar_comprobante(correo: str, comprobante: Comprobante) -> None
+}
+class "<color:red>TransicionInvalida</color>" as src.votacion.dominio.TransicionInvalida {
+}
+class "Voto" as src.votacion.dominio.Voto {
+  eleccion
+  id : UUID
+  lista
+}
+src.votacion.dominio.PostgresRepositorioVotacion --|> src.votacion.dominio.RepositorioVotacion
+src.votacion.dominio.SmtpAdapter --|> src.votacion.dominio.NotificadorCorreo
+src.votacion.dominio.Participacion --> src.votacion.dominio.Eleccion : eleccion
+src.votacion.dominio.Voto --> src.votacion.dominio.Eleccion : eleccion
+src.votacion.dominio.Eleccion --> src.votacion.dominio.EstadoEleccion : estado
+src.votacion.dominio.Participacion --> src.votacion.dominio.Estudiante : estudiante
+src.votacion.dominio.Voto --> src.votacion.dominio.Lista : lista
+@enduml

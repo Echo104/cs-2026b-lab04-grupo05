@@ -1,0 +1,7 @@
+@startuml packages_votacion
+set namespaceSeparator none
+package "src.votacion" as src.votacion {
+}
+package "src.votacion.dominio" as src.votacion.dominio {
+}
+@enduml
