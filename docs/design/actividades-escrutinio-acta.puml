@@ -1,0 +1,42 @@
+@startuml actividades-escrutinio-acta
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam ActivityBackgroundColor #EEF2F8
+skinparam ActivityBorderColor #1A3A5C
+|Comité electoral|
+start
+:Cierra la elección al llegar la hora de cierre;
+|Sistema|
+:Bloquea nuevos votos (estado CERRADA);
+:Exporta la urna anonimizada y barajada\ny calcula su huella SHA-256;
+fork
+  :Cuenta los votos por lista;
+fork again
+  :Cuenta las participaciones\ndel padrón;
+end fork
+if (¿Votos = participaciones?) then (sí)
+  :Marca la elección como ESCRUTADA;
+  :Genera el acta borrador con la huella;
+  |Auditor|
+  :Recuenta la urna con el\nscript independiente;
+  if (¿Coincide al 100 %?) then (sí)
+    |Comité electoral|
+    :Revisa y firma el acta;
+    |Sistema|
+    :Publica resultados y acta\n(estado PUBLICADA);
+    |Comité electoral|
+    :Comunica los resultados a la EPIS;
+    stop
+  else (no)
+    |Auditor|
+    :Reporta la discrepancia;
+    |Comité electoral|
+    :Detiene la publicación y ordena investigar;
+    stop
+  endif
+else (no)
+  |Comité electoral|
+  :Detiene la publicación y ordena investigar;
+  stop
+endif
+@enduml
