@@ -1,0 +1,31 @@
+@startuml paquetes
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam packageStyle rectangle
+title VotoEPIS — Paquetes del monolito modular (vista de desarrollo)
+package "votoepis" {
+  package "elecciones" as ELE
+  package "autenticacion" as AUT
+  package "votacion" as VOT
+  package "resultados" as RES
+  package "auditoria" as AUD
+  package "compartido" as COM
+}
+AUT ..> ELE : consulta el padrón\n(Estudiante)
+VOT ..> ELE : usa Eleccion y Lista
+VOT ..> AUT : solo el identificador\nde sesión
+RES ..> VOT : lee la urna\n(solo lectura)
+RES ..> ELE : escrutar() y publicar()
+AUD ..> RES : usa el acta y la huella
+AUD ..> VOT : exporta la urna\n(solo lectura)
+ELE ..> COM
+AUT ..> COM
+VOT ..> COM
+RES ..> COM
+AUD ..> COM
+note bottom of COM
+  Regla (ADR-001): los módulos solo se comunican por servicios de aplicación y puertos.
+  Sin ciclos: compartido <- elecciones <- autenticacion <- votacion <- resultados <- auditoria.
+  Los adaptadores (SMTP, PostgreSQL) viven en infraestructura y dependen de los puertos.
+end note
+@enduml
