@@ -1,0 +1,8 @@
+stateDiagram-v2
+    [*] --> CONFIGURADA : configurar()
+    CONFIGURADA --> CONFIGURADA : agregarLista()
+    CONFIGURADA --> ABIERTA : abrir() [padrón cargado y al menos una lista]
+    ABIERTA --> CERRADA : cerrar() [hora de cierre alcanzada]
+    CERRADA --> ESCRUTADA : escrutar() [votos igual a participaciones]
+    ESCRUTADA --> PUBLICADA : publicar() [acta firmada]
+    PUBLICADA --> [*]
