@@ -1,0 +1,50 @@
+@startuml secuencia-emitir-voto
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam sequenceMessageAlign center
+autonumber
+actor Estudiante
+participant "PWA" as UI
+participant "VotoController" as C
+participant "ServicioVotacion" as S
+participant "RepositorioVotacion" as R
+participant "Eleccion" as E
+participant "Participacion" as P
+participant "NotificadorCorreo\n(SmtpAdapter)" as N
+
+Estudiante -> UI : Elige una lista y confirma su voto
+UI -> C : POST /elecciones/{id}/voto
+C -> S : emitirVoto(estudianteId, eleccionId, listaId)
+S -> R : buscarEleccion(eleccionId)
+R --> S : eleccion
+S -> E : estaAbierta(ahora)
+E --> S : abierta
+alt elección abierta
+  S -> R : buscarLista(listaId, eleccionId)
+  R --> S : lista
+  S -> R : buscarEstudiante(estudianteId)
+  R --> S : estudiante
+  note over S : Participacion y Voto se crean por separado;\nel Voto no guarda referencia al estudiante (ADR-002)
+  loop hasta 3 intentos [error transitorio de la BD]
+    S -> R : registrar(participacion, voto)
+  end
+  note right of R : una sola transacción:\npadron.participacion (UNIQUE) + urna.voto
+  alt voto registrado
+    R --> S : ok
+    S -> P : emitirComprobante()
+    P --> S : comprobante
+    S ->> N : enviarComprobante(correo, comprobante)
+    note right of N : asíncrono\n(no bloquea la respuesta)
+    S --> C : comprobante
+    C --> UI : 201 Created (comprobante)
+  else participación duplicada
+    R --> S : ParticipacionDuplicada
+    S --> C : rechazo
+    C --> UI : 409 Ya participaste en esta elección
+  end
+else elección no abierta
+  S --> C : rechazo
+  C --> UI : 403 La elección no está abierta
+end
+UI --> Estudiante : Muestra el resultado
+@enduml
