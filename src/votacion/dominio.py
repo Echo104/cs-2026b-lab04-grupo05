@@ -59,6 +59,7 @@ class Eleccion:
     apertura: datetime | None = None
     cierre: datetime | None = None
     total_padron: int = 0
+    discrepancias: int = 0
     estado: EstadoEleccion = EstadoEleccion.CONFIGURADA
     listas: list[Lista] = field(default_factory=list)
     id: UUID = field(default_factory=uuid4)
@@ -91,10 +92,15 @@ class Eleccion:
             raise TransicionInvalida("Aún no se alcanza la hora de cierre")
         self.estado = EstadoEleccion.CERRADA
 
-    def escrutar(self, votos: int, participaciones: int) -> None:
+    def registrar_discrepancia(self) -> None:
+        """CERRADA -> CERRADA: los recuentos difieren; la elección no avanza ni se publica el acta."""
         self._exigir(EstadoEleccion.CERRADA)
-        if votos != participaciones:
-            raise TransicionInvalida("Los votos de la urna no coinciden con las participaciones")
+        self.discrepancias += 1
+
+    def escrutar(self, votos: int, participaciones: int, auditor_coincide: bool) -> None:
+        self._exigir(EstadoEleccion.CERRADA)
+        if votos != participaciones or not auditor_coincide:
+            raise TransicionInvalida("El recuento oficial y el del auditor deben coincidir")
         self.estado = EstadoEleccion.ESCRUTADA
 
     def publicar(self, acta_firmada: bool) -> None:

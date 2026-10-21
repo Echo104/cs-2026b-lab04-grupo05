@@ -15,11 +15,12 @@ fork again
   :Cuenta las participaciones\ndel padrón;
 end fork
 if (¿Votos = participaciones?) then (sí)
-  :Marca la elección como ESCRUTADA;
   :Genera el acta borrador con la huella;
   |Auditor|
   :Recuenta la urna con el\nscript independiente;
   if (¿Coincide al 100 %?) then (sí)
+    |Sistema|
+    :Marca la elección como ESCRUTADA;
     |Comité electoral|
     :Revisa y firma el acta;
     |Sistema|
@@ -30,11 +31,15 @@ if (¿Votos = participaciones?) then (sí)
   else (no)
     |Auditor|
     :Reporta la discrepancia;
+    |Sistema|
+    :Registra la discrepancia\n(la elección sigue CERRADA);
     |Comité electoral|
     :Detiene la publicación y ordena investigar;
     stop
   endif
 else (no)
+  |Sistema|
+  :Registra la discrepancia\n(la elección sigue CERRADA);
   |Comité electoral|
   :Detiene la publicación y ordena investigar;
   stop

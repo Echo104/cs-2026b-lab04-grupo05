@@ -4,7 +4,7 @@ skinparam defaultFontName Arial
 skinparam sequenceMessageAlign center
 autonumber
 actor Estudiante
-participant "PWA" as UI
+participant "Web de votación" as UI
 participant "VotoController" as C
 participant "ServicioVotacion" as S
 participant "RepositorioVotacion" as R

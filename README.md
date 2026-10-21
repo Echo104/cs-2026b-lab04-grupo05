@@ -120,13 +120,12 @@ stateDiagram-v2
 
 | Regla | Hallazgo | Verificación del equipo | Estado |
 |-------|----------|-------------------------|--------|
-| C2 / entre diagramas | En [actividades-escrutinio-acta.puml](actividades-escrutinio-acta.puml) la elección pasa a ESCRUTADA antes del recuento del auditor. Si el auditor reporta una discrepancia, la elección queda en ESCRUTADA y el diagrama de estados no tiene una transición para revertirla o anularla | Es un hallazgo real: la guarda de `publicar()` solo exige acta firmada, y el acta no se firma si hay discrepancia, así que no se publica. Pero el estado queda sin salida | Corregido |
+| C2 / entre diagramas | En [actividades-escrutinio-acta.puml](docs/design/actividades-escrutinio-acta.puml) la elección pasa a ESCRUTADA antes del recuento del auditor. Si el auditor reporta una discrepancia, la elección queda en ESCRUTADA y el diagrama de estados no tiene una transición para revertirla o anularla | Es un hallazgo real: la guarda de `publicar()` solo exige acta firmada, y el acta no se firma si hay discrepancia, así que no se publica. Pero el estado queda sin salida | Corregido |
 | C3 | Voto no está asociado a Participacion ni a Estudiante: «relación faltante» | Falso positivo confirmado: la ausencia de esta asociación es deliberada, conforme a R-06 y ADR-002. Relacionar directamente Voto con Estudiante permitiría identificar por quién votó cada estudiante, comprometiendo el secreto del voto. | Descartado: falso positivo justificado |
-| C1 | `VotoController` y `PWA` reciben mensajes pero no existen en el diagrama de clases | La regla C1 se aplica a las clases del dominio y de los puertos; controlador y PWA pertenecen a la capa de presentación, fuera del alcance de la historia | Aceptado como limitación |
+| C1 | `VotoController` y `Web de votación` reciben mensajes pero no existen en el diagrama de clases | La regla C1 se aplica a las clases del dominio y de los puertos; controlador y web pertenecen a la capa de presentación, fuera del alcance de la historia | Aceptado como limitación |
 | C4 | `votacion` depende de `autenticacion` | Permitido por ADR-001 solo para el identificador de sesión; la dependencia está etiquetada así | Verificado |
 
 ## Notas
 
 - Las imágenes de `diagramas/img/` se generan desde el código fuente de los diagramas. Consultar la lista de verificación de E3, E5 y E6 en la guía.
-- Los estados de la tabla reflejan la revisión documental. C2 debe marcarse como corregido solo después de modificar y comprobar los diagramas afectados.
 - La separación entre el padrón y la urna debe conservarse en los diagramas, las interfaces y la implementación, evitando asociaciones que permitan identificar al autor de un voto.

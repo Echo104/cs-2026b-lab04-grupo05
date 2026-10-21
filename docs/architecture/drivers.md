@@ -14,7 +14,7 @@ Plataforma web para la elección digital de delegados estudiantiles de la EPIS. 
 | RF-05 | Publicar los resultados y generar el acta de la elección                          | Comité electoral   | Alta      |
 | RF-06 | Verificar el conteo de forma independiente (exportar urna anonimizada y huella)   | Auditor            | Alta      |
 | RF-07 | Configurar la elección (candidatos o listas, fecha y hora de apertura y cierre)   | Comité electoral   | Media     |
-| RF-08 | Mostrar comprobante de participación (sin revelar la opción votada)               | Estudiante votante | Media     |
+| RF-08 | Mostrar comprobante de participación (en pantalla y por correo), sin revelar la opción votada               | Estudiante votante | Media     |
 
 ## 2. Atributos de calidad (ordenados por prioridad)
 1. **Seguridad (integridad y confidencialidad)** — atributo crítico: un voto por estudiante, voto secreto y conteo verificable; un solo fallo invalida la elección.

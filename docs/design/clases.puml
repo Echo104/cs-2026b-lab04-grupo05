@@ -19,12 +19,14 @@ class Eleccion {
   - cierre: DateTime
   - estado: EstadoEleccion
   - totalPadron: int
+  - discrepancias: int
   + configurar(nombre: String, apertura: DateTime, cierre: DateTime, totalPadron: int): void
   + agregarLista(lista: Lista): void
   + abrir(): void
   + estaAbierta(ahora: DateTime): bool
   + cerrar(ahora: DateTime): void
-  + escrutar(votos: int, participaciones: int): void
+  + registrarDiscrepancia(): void
+  + escrutar(votos: int, participaciones: int, auditorCoincide: bool): void
   + publicar(actaFirmada: bool): void
 }
 class Lista {
