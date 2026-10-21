@@ -125,6 +125,39 @@ stateDiagram-v2
 | C1 | `VotoController` y `Web de votación` reciben mensajes pero no existen en el diagrama de clases | La regla C1 se aplica a las clases del dominio y de los puertos; controlador y web pertenecen a la capa de presentación, fuera del alcance de la historia | Aceptado como limitación |
 | C4 | `votacion` depende de `autenticacion` | Permitido por ADR-001 solo para el identificador de sesión; la dependencia está etiquetada así | Verificado |
 
+## Arquitectura C4 (Lab 06)
+Modelo único en [workspace.dsl](docs/architecture/c4/workspace.dsl) (Structurizr DSL), coherente con el [ADR-001](docs/architecture/adr/001-estilo-arquitectonico.md) y con el diseño del Lab 05.
+
+### Contexto del sistema
+```mermaid
+C4Context
+    title Contexto de VotoEPIS
+    Person(estudiante, "Estudiante votante", "Vota una sola vez, en secreto")
+    Person(comite, "Comité electoral", "Prepara la elección y publica resultados y acta")
+    Person(auditor, "Auditor", "Verifica el conteo de forma independiente")
+    System(votoepis, "VotoEPIS", "Votación secreta, conteo y auditoría")
+    System_Ext(correo, "Servidor de correo institucional", "Entrega códigos y comprobantes")
+    System_Ext(academico, "Sistema académico UNSA", "Origen del padrón (archivo CSV)")
+    Rel(estudiante, votoepis, "Vota en secreto y consulta su comprobante")
+    Rel(comite, votoepis, "Configura la elección, carga el padrón y publica resultados y acta")
+    Rel(auditor, votoepis, "Verifica el conteo de forma independiente")
+    Rel(votoepis, correo, "Envía códigos de acceso y comprobantes", "SMTP")
+    Rel(comite, academico, "Obtiene el padrón en un archivo CSV")
+    UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")
+```
+
+
+### Vistas (imágenes en `docs/architecture/c4/img/`)
+- Contexto: [structurizr-Contexto.png](docs/architecture/c4/img/structurizr-Contexto.png)
+- Contenedores: [structurizr-Contenedores.png](docs/architecture/c4/img/structurizr-Contenedores.png)
+- Componentes de la API: [structurizr-Componentes.png](docs/architecture/c4/img/structurizr-Componentes.png)
+- Dinámica (emitir un voto): [structurizr-EmitirVoto.png](docs/architecture/c4/img/structurizr-EmitirVoto.png)
+- Despliegue: [structurizr-Despliegue.png](docs/architecture/c4/img/structurizr-Despliegue.png)
+- Nivel 4 (código): [clases.puml](docs/design/clases.puml) del Lab 05
+
+### Documentos
+[inventario.md](docs/architecture/c4/inventario.md) · [comparacion.md](docs/architecture/c4/comparacion.md) · [revision-c4.md](docs/architecture/c4/revision-c4.md) · [explicacion.md](docs/architecture/c4/explicacion.md) · [bitacora-ia.md](docs/architecture/c4/bitacora-ia.md) · [contexto-manual.puml](docs/architecture/c4/contexto-manual.puml)
+
 ## Notas
 
 - Las imágenes de `diagramas/img/` se generan desde el código fuente de los diagramas. Consultar la lista de verificación de E3, E5 y E6 en la guía.
