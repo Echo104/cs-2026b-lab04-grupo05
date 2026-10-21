@@ -148,11 +148,11 @@ C4Context
 
 
 ### Vistas (imágenes en `docs/architecture/c4/img/`)
-- Contexto: [structurizr-Contexto.png](docs/architecture/c4/img/structurizr-Contexto.png)
-- Contenedores: [structurizr-Contenedores.png](docs/architecture/c4/img/structurizr-Contenedores.png)
-- Componentes de la API: [structurizr-Componentes.png](docs/architecture/c4/img/structurizr-Componentes.png)
-- Dinámica (emitir un voto): [structurizr-EmitirVoto.png](docs/architecture/c4/img/structurizr-EmitirVoto.png)
-- Despliegue: [structurizr-Despliegue.png](docs/architecture/c4/img/structurizr-Despliegue.png)
+- Contexto: [structurizr-Contexto.png](docs/architecture/c4/img/Contexto-dark.png)
+- Contenedores: [structurizr-Contenedores.png](docs/architecture/c4/img/Contenedores-dark.png)
+- Componentes de la API: [structurizr-Componentes.png](docs/architecture/c4/img/Componentes-dark.png)
+- Dinámica (emitir un voto): [structurizr-EmitirVoto.png](docs/architecture/c4/img/Dinamico-dark.png)
+- Despliegue: [structurizr-Despliegue.png](docs/architecture/c4/img/Despliegue-dark.png)
 - Nivel 4 (código): [clases.puml](docs/design/clases.puml) del Lab 05
 
 ### Documentos
