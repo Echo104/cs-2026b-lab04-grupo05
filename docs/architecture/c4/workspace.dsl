@@ -75,6 +75,15 @@ workspace "VotoEPIS" "Modelo C4 de la plataforma de elección digital de delegad
             include *
             autolayout lr
         }
+        dynamic votoepis.api "EmitirVoto" "Dinámico: emitir un voto secreto (HU-03)." {
+            votoepis.web -> votoepis.api.votacion "POST /elecciones/{id}/voto"
+            votoepis.api.votacion -> votoepis.api.autenticacion "Obtiene el estudiante de la sesión"
+            votoepis.api.votacion -> votoepis.api.elecciones "Verifica que la elección esté abierta"
+            votoepis.api.votacion -> votoepis.padron "Registra la participación"
+            votoepis.api.votacion -> votoepis.urna "Registra el voto anónimo"
+            votoepis.api.votacion -> correo "Envía el comprobante"
+            autolayout lr
+        }
         styles {
             element "Person" {
                 shape person
