@@ -59,6 +59,24 @@ workspace "VotoEPIS" "Modelo C4 de la plataforma de elección digital de delegad
         votoepis.api.votacion -> correo "Envía el comprobante de participación" "SMTP"
         votoepis.api.resultados -> votoepis.urna "Cuenta los votos por lista" "SQL/TCP"
         votoepis.api.auditoria -> votoepis.urna "Exporta la urna anonimizada" "SQL/TCP"
+
+        produccion = deploymentEnvironment "Producción" {
+            deploymentNode "Celular o laptop del estudiante" "" "Android / iOS / navegador web" {
+                containerInstance votoepis.web
+            }
+            deploymentNode "Servidor (VPS o servidor de la universidad)" "Un solo servidor de bajo costo" "Ubuntu 24.04 LTS, 2 vCPU, 4 GB RAM (supuesto)" {
+                deploymentNode "Nginx + Gunicorn" "Termina HTTPS y ejecuta la API" "Nginx / Gunicorn" {
+                    containerInstance votoepis.api
+                }
+                deploymentNode "PostgreSQL" "Un servidor con dos esquemas y roles distintos" "PostgreSQL" {
+                    containerInstance votoepis.padron
+                    containerInstance votoepis.urna
+                }
+                deploymentNode "Grafana" "" "Grafana" {
+                    containerInstance votoepis.monitoreo
+                }
+            }
+        }
     }
 
     views {
@@ -82,6 +100,10 @@ workspace "VotoEPIS" "Modelo C4 de la plataforma de elección digital de delegad
             votoepis.api.votacion -> votoepis.padron "Registra la participación"
             votoepis.api.votacion -> votoepis.urna "Registra el voto anónimo"
             votoepis.api.votacion -> correo "Envía el comprobante"
+            autolayout lr
+        }
+        deployment votoepis produccion "Despliegue" "Despliegue en producción (MVP)." {
+            include *
             autolayout lr
         }
         styles {

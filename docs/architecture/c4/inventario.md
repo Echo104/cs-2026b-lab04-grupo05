@@ -15,6 +15,7 @@ Todos los elementos de [workspace.dsl](workspace.dsl) salen de artefactos de los
 | Monitoreo | Contenedor | despliegue.py (Grafana) |
 | Módulos Elección y padrón, Autenticación, Votación, Resultados, Auditoría | Componente (de la API) | [paquetes.puml](../../design/paquetes.puml) (Lab 05) |
 | Flujo «emitir un voto» | Vista dinámica | [secuencia-emitir-voto.puml](../../design/secuencia-emitir-voto.puml) (Lab 05) |
+| Nginx, Gunicorn, el servidor | Nodos de despliegue (no son contenedores C4) | despliegue.py (Lab 04) |
 
 ## Pistas de la guía (Tabla 10) frente al ADR propio
 | Pista | Decisión en este modelo | Por qué |
@@ -29,4 +30,5 @@ Todos los elementos de [workspace.dsl](workspace.dsl) salen de artefactos de los
 - La tecnología de la Web de votación no está fijada en el ADR-001; se indica «aplicación web responsive (navegador)».
 - Las elecciones y las listas se guardan en el esquema `padron` (el ADR-002 solo define padrón, participación y urna).
 - La relación API → Monitoreo («Envía métricas de salud», HTTP) se tomó de despliegue.py, que dibuja Grafana con una línea punteada; el protocolo no está documentado en ningún ADR.
+- Tamaño del servidor («2 vCPU, 4 GB RAM») es un supuesto para el volumen del caso (≈ 300 votantes en 10 minutos).
 - No hay todavía una decisión sobre dónde se guarda la constancia de los intentos de doble voto (QA-01).
