@@ -21,10 +21,6 @@ Mediciones sobre el flujo «emitir voto» y el asistente de reglamento. Las cifr
 | Métodos a modificar para agregar un proveedor de IA | 1 (`consultar_reglamento`) | 0 (se agrega al diccionario de proveedores) |
 | Métodos a modificar para agregar un suscriptor (p. ej., otra auditoría) | 1 (`emitir_voto`) | 0 (se suscribe) |
 
-## Pruebas
-La suite completa (caracterización sobre `antes` y `despues`, pruebas de patrones y de IA) tiene 84 pruebas que pasan en el entorno donde se
-generó este material, más 1 `xfail` que documenta un defecto de la versión antes (comprobante con código fijo). Ejecute `pytest -v` para confirmarlo en su equipo.
-
 ## Análisis del trade-off (¿qué ganamos, qué costó y cuándo bastaba la versión antes?)
 Ganamos que `emitir_voto` pasó de 8 a 1 y que agregar un canal, un proveedor de IA o un interesado ya no
 obliga a modificar el servicio; además, la IA quedó aislada (sin acceso al repositorio ni al conteo) y se
