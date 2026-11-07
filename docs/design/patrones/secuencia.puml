@@ -1,0 +1,35 @@
+@startuml secuencia-patrones
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam sequenceMessageAlign center
+autonumber
+title emitir_voto() después del refactor: los patrones colaborando
+participant "ServicioVotacion" as S
+participant "RepositorioConReintentos\n<<Decorator>>" as D
+participant "RepositorioAdapter\n<<Adapter>>" as A
+participant "Eleccion\n<<State: Abierta>>" as E
+participant "PublicadorEventos\n<<Observer>>" as P
+participant "NotificadorComprobante" as N
+participant "CorreoAdapter\n<<Adapter>>" as C
+participant "RegistroEventos" as R
+
+S -> D : buscar_eleccion(id)
+D -> A : buscar_eleccion(id)
+A --> S : eleccion
+S -> E : verificar_votable(ahora)
+E --> S : ok
+S -> D : registrar(participacion, voto)
+loop hasta 3 intentos [ErrorTransitorio]
+  D -> A : registrar(participacion, voto)
+end
+D --> S : ok
+S -> P : publicar("voto_registrado", datos)
+P -> N : actualizar(evento, datos)
+N -> C : enviar_comprobante(correo, comprobante)
+alt falla el envío
+  N -> P : publicar("notificacion_fallida", datos)
+  P -> R : actualizar("notificacion_fallida")
+end
+P -> R : actualizar("voto_registrado")
+S --> S : devuelve {codigo, fecha}
+@enduml

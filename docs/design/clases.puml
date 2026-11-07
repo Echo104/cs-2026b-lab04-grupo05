@@ -4,7 +4,7 @@ skinparam shadowing false
 skinparam defaultFontName Arial
 skinparam classBackgroundColor #EEF2F8
 skinparam classBorderColor #1A3A5C
-title VotoEPIS — Módulos Elección y Votación (diseño)
+title VotoEPIS — Módulos Elección y Votación (diseño actualizado en el Lab 07)
 skinparam nodesep 25
 skinparam ranksep 40
 
@@ -17,13 +17,17 @@ class Eleccion {
   - nombre: String
   - apertura: DateTime
   - cierre: DateTime
-  - estado: EstadoEleccion
+  - etapa: Etapa <<State>>
   - totalPadron: int
   - discrepancias: int
   + configurar(nombre: String, apertura: DateTime, cierre: DateTime, totalPadron: int): void
   + agregarLista(lista: Lista): void
   + abrir(): void
+  + estado(): EstadoEleccion
+  + cambiarA(etapa: Etapa): void
+  + reconstruir(estado: String): Eleccion
   + estaAbierta(ahora: DateTime): bool
+  + verificarVotable(ahora: DateTime): void
   + cerrar(ahora: DateTime): void
   + registrarDiscrepancia(): void
   + escrutar(votos: int, participaciones: int, auditorCoincide: bool): void
@@ -51,7 +55,7 @@ class Comprobante {
   - codigo: String
   - fechaHora: DateTime
 }
-interface NotificadorCorreo <<puerto>> {
+interface CanalComprobante <<Strategy>> {
   + enviarComprobante(correo: String, comprobante: Comprobante): void
 }
 interface RepositorioVotacion <<puerto>> {
@@ -60,10 +64,17 @@ interface RepositorioVotacion <<puerto>> {
   + buscarEstudiante(id: UUID): Estudiante
   + registrar(participacion: Participacion, voto: Voto): void
 }
-class SmtpAdapter <<adaptador>>
-class PostgresRepositorioVotacion <<adaptador>>
+class CorreoAdapter <<Adapter>>
+class RepositorioAdapter <<Adapter>>
+class RepositorioConReintentos <<Decorator>>
+class FabricaCanales <<Factory>>
+class PublicadorEventos <<Observer>>
+abstract class Etapa <<State>> {
+  + verificarVotable(eleccion: Eleccion, ahora: DateTime): void
+}
 class ServicioVotacion <<servicio>> {
-  + emitirVoto(estudianteId: UUID, eleccionId: UUID, listaId: UUID): Comprobante
+  + emitirVoto(estudianteId: UUID, eleccionId: UUID, listaId: UUID, ahora: DateTime): Comprobante
+  + consultarReglamento(pregunta: String, proveedor: String): String
 }
 
 Eleccion "1" *-- "1..*" Lista : ofrece >
@@ -72,14 +83,20 @@ Eleccion "1" -- "0..*" Participacion : registra >
 Eleccion "1" -- "0..*" Voto : urna >
 Lista "1" -- "0..*" Voto : recibe >
 Eleccion "0..*" --> "1" EstadoEleccion
-NotificadorCorreo <|.. SmtpAdapter
-RepositorioVotacion <|.. PostgresRepositorioVotacion
+CanalComprobante <|.. CorreoAdapter
+RepositorioVotacion <|.. RepositorioAdapter
+RepositorioVotacion <|.. RepositorioConReintentos
+RepositorioConReintentos ..> RepositorioVotacion : envuelve
+FabricaCanales ..> CanalComprobante : crea
+Eleccion "1" --> "1" Etapa : etapa actual
+ServicioVotacion ..> FabricaCanales
+ServicioVotacion ..> PublicadorEventos
 Participacion ..> Comprobante
 ServicioVotacion ..> Participacion
 ServicioVotacion ..> Voto
 ServicioVotacion ..> Comprobante
 ServicioVotacion ..> RepositorioVotacion
-ServicioVotacion ..> NotificadorCorreo
+ServicioVotacion ..> CanalComprobante
 
 note right of Voto
   Sin asociación con Estudiante

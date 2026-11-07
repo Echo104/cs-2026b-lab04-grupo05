@@ -10,15 +10,15 @@ participant "ServicioVotacion" as S
 participant "RepositorioVotacion" as R
 participant "Eleccion" as E
 participant "Participacion" as P
-participant "NotificadorCorreo\n(SmtpAdapter)" as N
+participant "CanalComprobante\n(CorreoAdapter)" as N
 
 Estudiante -> UI : Elige una lista y confirma su voto
 UI -> C : POST /elecciones/{id}/voto
-C -> S : emitirVoto(estudianteId, eleccionId, listaId)
+C -> S : emitirVoto(estudianteId, eleccionId, listaId, ahora)
 S -> R : buscarEleccion(eleccionId)
 R --> S : eleccion
-S -> E : estaAbierta(ahora)
-E --> S : abierta
+S -> E : verificarVotable(ahora)
+E --> S : ok (o EleccionNoAbierta)
 alt elección abierta
   S -> R : buscarLista(listaId, eleccionId)
   R --> S : lista

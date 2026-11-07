@@ -1,0 +1,34 @@
+@startuml eventos
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam classBackgroundColor #EEF2F8
+skinparam classBorderColor #1A3A5C
+skinparam nodesep 25
+skinparam ranksep 40
+title Notificaciones y auditoría: Observer
+class ServicioVotacion <<cliente>>
+class PublicadorEventos <<Observer>> {
+  - suscriptores: dict
+  + fallos: list
+  + suscribir(evento: String, suscriptor: Suscriptor): void
+  + publicar(evento: String, datos: dict): void
+}
+interface Suscriptor <<Observer>> {
+  + actualizar(evento: String, datos: dict): void
+}
+class NotificadorComprobante <<SuscriptorConcreto>>
+class RegistroEventos <<SuscriptorConcreto>>
+interface CanalComprobante <<Strategy>>
+ServicioVotacion --> PublicadorEventos : publica "voto_registrado"
+PublicadorEventos "1" o--> "0..*" Suscriptor : suscriptores
+Suscriptor <|.. NotificadorComprobante
+Suscriptor <|.. RegistroEventos
+NotificadorComprobante ..> CanalComprobante : usa
+NotificadorComprobante ..> PublicadorEventos : publica "notificacion_fallida"
+note right of PublicadorEventos
+  Los datos del evento NO incluyen la lista elegida
+  (R-06). Un suscriptor defectuoso no afecta
+  a los demás ni anula el voto.
+end note
+@enduml

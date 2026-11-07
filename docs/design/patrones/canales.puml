@@ -1,0 +1,42 @@
+@startuml canales
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam classBackgroundColor #EEF2F8
+skinparam classBorderColor #1A3A5C
+skinparam nodesep 25
+skinparam ranksep 40
+title Comprobante: Strategy + Adapter + Factory
+class ServicioVotacion <<cliente>> {
+  + emitirVoto(estudianteId, eleccionId, listaId, ahora): dict
+}
+class FabricaCanales <<Factory>> {
+  - creadores: dict
+  + registrar(canal: String, creador): void
+  + crear(canal: String): CanalComprobante
+}
+interface CanalComprobante <<Strategy>> {
+  + enviarComprobante(correo: String, comprobante: Comprobante): void
+}
+class CorreoAdapter <<Adapter>> {
+  - servicio: ServicioCorreoExterno
+}
+class ServicioCorreoExterno <<externo>> {
+  + enviarComprobante(correo: String, comprobante: dict): void
+}
+interface RepositorioVotacion <<puerto>>
+class RepositorioAdapter <<Adapter>>
+class RepositorioExterno <<externo>>
+ServicioVotacion --> FabricaCanales : pide el canal
+FabricaCanales ..> CanalComprobante : crea
+ServicioVotacion ..> CanalComprobante : usa
+CanalComprobante <|.. CorreoAdapter
+CorreoAdapter ..> ServicioCorreoExterno : traduce
+RepositorioVotacion <|.. RepositorioAdapter
+RepositorioAdapter ..> RepositorioExterno : traduce
+note right of FabricaCanales
+  Nuevo canal = registrar un creador
+  (abierto/cerrado). El canal se valida
+  antes de operar.
+end note
+@enduml

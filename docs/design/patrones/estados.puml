@@ -1,0 +1,43 @@
+@startuml estados
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam classBackgroundColor #EEF2F8
+skinparam classBorderColor #1A3A5C
+skinparam nodesep 25
+skinparam ranksep 40
+title Ciclo de vida de la elección: State
+class Eleccion <<contexto>> {
+  - etapa: Etapa
+  + abrir(): void
+  + cerrar(ahora: DateTime): void
+  + registrarDiscrepancia(): void
+  + escrutar(votos: int, participaciones: int, auditorCoincide: bool): void
+  + publicar(actaFirmada: bool): void
+  + cambiarA(etapa: Etapa): void
+}
+abstract class Etapa <<State>> {
+  + nombre: String
+  + abrir(eleccion): void
+  + cerrar(eleccion, ahora): void
+  + escrutar(eleccion, votos, participaciones, auditorCoincide): void
+  + publicar(eleccion, actaFirmada): void
+}
+class Configurada <<EstadoConcreto>>
+class Abierta <<EstadoConcreto>>
+class Cerrada <<EstadoConcreto>>
+class Escrutada <<EstadoConcreto>>
+class Publicada <<EstadoConcreto>>
+Eleccion "1" o--> "1" Etapa : etapa actual
+Etapa <|-- Configurada
+Etapa <|-- Abierta
+Etapa <|-- Cerrada
+Etapa <|-- Escrutada
+Etapa <|-- Publicada
+note right of Etapa
+  Por defecto toda transición lanza
+  TransicionInvalida. Cada etapa
+  redefine SOLO las permitidas en
+  estados-eleccion.mmd.
+end note
+@enduml

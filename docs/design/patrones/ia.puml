@@ -1,0 +1,54 @@
+@startuml ia
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam classBackgroundColor #EEF2F8
+skinparam classBorderColor #1A3A5C
+skinparam nodesep 25
+skinparam ranksep 40
+title Asistente de reglamento aislado: Strategy + Adapter + Decorator + Chain of Responsibility
+class AsistenteReglamento <<cliente>> {
+  + proveedores: dict
+  + consultar(pregunta: String, proveedor: String): String
+}
+interface ProveedorLLM <<Strategy>> {
+  + completar(prompt: String): String
+}
+class AlfaAdapter <<Adapter>>
+class LocalAdapter <<Adapter>>
+class ConCache <<Decorator>> {
+  - interno: ProveedorLLM
+  - cache: dict
+}
+class ClienteLLMFalso <<externo>> {
+  + completar(prompt: String): String
+}
+class ModeloLocalFalso <<externo>> {
+  + generate(model: String, text: String): dict
+}
+abstract class Guardrail <<Handler>> {
+  - siguiente: Guardrail
+  + validar(texto: String): String
+  # aplicar(texto: String): String
+}
+class SinDatosPersonales <<ManejadorConcreto>>
+class SinAfirmacionesProhibidas <<ManejadorConcreto>>
+class LongitudMaxima <<ManejadorConcreto>>
+AsistenteReglamento "1" --> "1..*" ProveedorLLM : elige por nombre
+AsistenteReglamento "1" --> "1" Guardrail : primer eslabón
+ProveedorLLM <|.. AlfaAdapter
+ProveedorLLM <|.. LocalAdapter
+ProveedorLLM <|.. ConCache
+ConCache o--> ProveedorLLM : envuelve
+AlfaAdapter ..> ClienteLLMFalso : traduce
+LocalAdapter ..> ModeloLocalFalso : traduce
+Guardrail "0..1" o--> "0..1" Guardrail : siguiente
+Guardrail <|-- SinDatosPersonales
+Guardrail <|-- SinAfirmacionesProhibidas
+Guardrail <|-- LongitudMaxima
+note bottom of AsistenteReglamento
+  La IA NO recibe el repositorio ni participa en el conteo.
+  Su salida es un dato no confiable: se valida en cadena
+  SinDatosPersonales -> SinAfirmacionesProhibidas -> LongitudMaxima.
+end note
+@enduml

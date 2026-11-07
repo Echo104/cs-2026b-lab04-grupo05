@@ -1,0 +1,30 @@
+@startuml reintentos
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam classBackgroundColor #EEF2F8
+skinparam classBorderColor #1A3A5C
+skinparam nodesep 25
+skinparam ranksep 40
+title Reintentos de persistencia: Decorator
+interface RepositorioVotacion <<puerto>> {
+  + registrar(participacion: Participacion, voto: Voto): void
+}
+class RepositorioAdapter <<Adapter>> {
+  + registrar(participacion: Participacion, voto: Voto): void
+}
+class RepositorioConReintentos <<Decorator>> {
+  - interno: RepositorioVotacion
+  - intentos: int
+  + registrar(participacion: Participacion, voto: Voto): void
+}
+class ServicioVotacion <<cliente>>
+RepositorioVotacion <|.. RepositorioAdapter
+RepositorioVotacion <|.. RepositorioConReintentos
+RepositorioConReintentos o--> RepositorioVotacion : envuelve
+ServicioVotacion ..> RepositorioVotacion : usa
+note bottom of RepositorioConReintentos
+  Reintenta SOLO ante ErrorTransitorio (TimeoutError).
+  Un duplicado o un error de negocio NO se reintenta.
+end note
+@enduml
