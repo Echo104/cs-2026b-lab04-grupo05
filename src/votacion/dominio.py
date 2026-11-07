@@ -1,4 +1,4 @@
-"""Dominio del módulo Votación de VotoEPIS (Lab 05) preparado para los patrones del Lab 07.
+"""Dominio del módulo Votación de VotoEPIS (Lab 05) con los patrones del Lab 07.
 
 Los nombres usan snake_case (equivalencia con el camelCase del diagrama, regla C5).
 Los puertos (`RepositorioVotacion`, `CanalComprobante`) se implementan en `repositorio.py`
@@ -13,6 +13,10 @@ from datetime import datetime
 from enum import Enum
 from uuid import UUID, uuid4
 
+from .estados import Configurada, Etapa, etapa_desde_nombre
+from .excepciones import (EleccionNoAbierta, ErrorTransitorio, ParticipacionDuplicada,  # noqa: F401
+                          TransicionInvalida)
+
 # UUID en producción; los dobles de prueba usan cadenas como identificador.
 Identificador = UUID | str
 
@@ -23,22 +27,6 @@ class EstadoEleccion(Enum):
     CERRADA = "CERRADA"
     ESCRUTADA = "ESCRUTADA"
     PUBLICADA = "PUBLICADA"
-
-
-class TransicionInvalida(ValueError):
-    """La operación no está permitida en el estado actual o no cumple su guarda."""
-
-
-class EleccionNoAbierta(ValueError):
-    """Se intentó votar con la elección fuera de su ventana de votación."""
-
-
-class ParticipacionDuplicada(ValueError):
-    """El estudiante ya participó en la elección (restricción UNIQUE del padrón)."""
-
-
-class ErrorTransitorio(TimeoutError):
-    """Fallo temporal de la base de datos; el registro puede reintentarse."""
 
 
 @dataclass
@@ -55,77 +43,60 @@ class Lista:
 
 @dataclass
 class Eleccion:
+    """Contexto del patrón STATE: delega cada operación en su etapa actual (`estados.py`)."""
+
     nombre: str = ""
     apertura: datetime | None = None
     cierre: datetime | None = None
     total_padron: int = 0
     discrepancias: int = 0
-    estado: EstadoEleccion = EstadoEleccion.CONFIGURADA
     listas: list[Lista] = field(default_factory=list)
     id: Identificador = field(default_factory=uuid4)
+    _etapa: Etapa = field(default_factory=Configurada, repr=False, compare=False)
+
+    @property
+    def estado(self) -> EstadoEleccion:
+        return EstadoEleccion(self._etapa.nombre)
+
+    def cambiar_a(self, etapa: Etapa) -> None:
+        self._etapa = etapa
 
     @classmethod
     def reconstruir(cls, estado: str, **campos) -> Eleccion:
         """Crea una elección ya existente (p. ej., leída de la BD) en el estado indicado."""
         eleccion = cls(**campos)
-        eleccion.estado = EstadoEleccion(estado)
+        eleccion.cambiar_a(etapa_desde_nombre(estado))
         return eleccion
 
     def configurar(self, nombre: str, apertura: datetime, cierre: datetime, total_padron: int) -> None:
         self.nombre, self.apertura, self.cierre = nombre, apertura, cierre
         self.total_padron = total_padron
-        self.estado = EstadoEleccion.CONFIGURADA
+        self.cambiar_a(Configurada())
 
     def agregar_lista(self, lista: Lista) -> None:
-        self._exigir(EstadoEleccion.CONFIGURADA)
-        self.listas.append(lista)
+        self._etapa.agregar_lista(self, lista)
 
     def abrir(self) -> None:
-        self._exigir(EstadoEleccion.CONFIGURADA)
-        if self.total_padron <= 0 or not self.listas:
-            raise TransicionInvalida("Se requiere padrón cargado y al menos una lista")
-        self.estado = EstadoEleccion.ABIERTA
+        self._etapa.abrir(self)
 
     def esta_abierta(self, ahora: datetime) -> bool:
-        return (
-            self.estado is EstadoEleccion.ABIERTA
-            and self.apertura is not None and self.cierre is not None
-            and self.apertura <= ahora < self.cierre
-        )
+        return self._etapa.esta_abierta(self, ahora)
 
     def verificar_votable(self, ahora: datetime) -> None:
         """Lanza `EleccionNoAbierta` si no se puede votar en este instante."""
-        if self.estado is not EstadoEleccion.ABIERTA:
-            raise EleccionNoAbierta("La elección no está abierta")
-        if not self.esta_abierta(ahora):
-            raise EleccionNoAbierta("Fuera del horario de votación")
+        self._etapa.verificar_votable(self, ahora)
 
     def cerrar(self, ahora: datetime) -> None:
-        self._exigir(EstadoEleccion.ABIERTA)
-        if self.cierre is None or ahora < self.cierre:
-            raise TransicionInvalida("Aún no se alcanza la hora de cierre")
-        self.estado = EstadoEleccion.CERRADA
+        self._etapa.cerrar(self, ahora)
 
     def registrar_discrepancia(self) -> None:
-        """CERRADA -> CERRADA: los recuentos difieren; la elección no avanza ni se publica el acta."""
-        self._exigir(EstadoEleccion.CERRADA)
-        self.discrepancias += 1
+        self._etapa.registrar_discrepancia(self)
 
     def escrutar(self, votos: int, participaciones: int, auditor_coincide: bool) -> None:
-        self._exigir(EstadoEleccion.CERRADA)
-        if votos != participaciones or not auditor_coincide:
-            raise TransicionInvalida("El recuento oficial y el del auditor deben coincidir")
-        self.estado = EstadoEleccion.ESCRUTADA
+        self._etapa.escrutar(self, votos, participaciones, auditor_coincide)
 
     def publicar(self, acta_firmada: bool) -> None:
-        self._exigir(EstadoEleccion.ESCRUTADA)
-        if not acta_firmada:
-            raise TransicionInvalida("El acta debe estar firmada")
-        self.estado = EstadoEleccion.PUBLICADA
-
-    def _exigir(self, esperado: EstadoEleccion) -> None:
-        if self.estado is not esperado:
-            raise TransicionInvalida(f"Estado {self.estado.value}; se esperaba {esperado.value}")
+        self._etapa.publicar(self, acta_firmada)
 
 
 @dataclass(frozen=True)
