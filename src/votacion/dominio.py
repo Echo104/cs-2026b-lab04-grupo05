@@ -1,20 +1,20 @@
-"""Esqueleto del módulo Votación de VotoEPIS (E6), generado con IA desde docs/design/clases.puml.
+"""Dominio del módulo Votación de VotoEPIS (Lab 05) preparado para los patrones del Lab 07.
 
 Los nombres usan snake_case (equivalencia con el camelCase del diagrama, regla C5).
+Los puertos (`RepositorioVotacion`, `CanalComprobante`) se implementan en `repositorio.py`
+y `canales.py`; el servicio que los coordina vive en `servicio.py`.
 """
 from __future__ import annotations
 
-import logging
 import secrets
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Callable
 from uuid import UUID, uuid4
 
-MAX_INTENTOS = 3
-log = logging.getLogger(__name__)
+# UUID en producción; los dobles de prueba usan cadenas como identificador.
+Identificador = UUID | str
 
 
 class EstadoEleccion(Enum):
@@ -25,32 +25,32 @@ class EstadoEleccion(Enum):
     PUBLICADA = "PUBLICADA"
 
 
-class TransicionInvalida(Exception):
+class TransicionInvalida(ValueError):
     """La operación no está permitida en el estado actual o no cumple su guarda."""
 
 
-class EleccionNoAbierta(Exception):
+class EleccionNoAbierta(ValueError):
     """Se intentó votar con la elección fuera de su ventana de votación."""
 
 
-class ParticipacionDuplicada(Exception):
+class ParticipacionDuplicada(ValueError):
     """El estudiante ya participó en la elección (restricción UNIQUE del padrón)."""
 
 
-class ErrorTransitorio(Exception):
+class ErrorTransitorio(TimeoutError):
     """Fallo temporal de la base de datos; el registro puede reintentarse."""
 
 
 @dataclass
 class Estudiante:
     correo_institucional: str
-    id: UUID = field(default_factory=uuid4)
+    id: Identificador = field(default_factory=uuid4)
 
 
 @dataclass
 class Lista:
     nombre: str
-    id: UUID = field(default_factory=uuid4)
+    id: Identificador = field(default_factory=uuid4)
 
 
 @dataclass
@@ -62,7 +62,14 @@ class Eleccion:
     discrepancias: int = 0
     estado: EstadoEleccion = EstadoEleccion.CONFIGURADA
     listas: list[Lista] = field(default_factory=list)
-    id: UUID = field(default_factory=uuid4)
+    id: Identificador = field(default_factory=uuid4)
+
+    @classmethod
+    def reconstruir(cls, estado: str, **campos) -> Eleccion:
+        """Crea una elección ya existente (p. ej., leída de la BD) en el estado indicado."""
+        eleccion = cls(**campos)
+        eleccion.estado = EstadoEleccion(estado)
+        return eleccion
 
     def configurar(self, nombre: str, apertura: datetime, cierre: datetime, total_padron: int) -> None:
         self.nombre, self.apertura, self.cierre = nombre, apertura, cierre
@@ -85,6 +92,13 @@ class Eleccion:
             and self.apertura is not None and self.cierre is not None
             and self.apertura <= ahora < self.cierre
         )
+
+    def verificar_votable(self, ahora: datetime) -> None:
+        """Lanza `EleccionNoAbierta` si no se puede votar en este instante."""
+        if self.estado is not EstadoEleccion.ABIERTA:
+            raise EleccionNoAbierta("La elección no está abierta")
+        if not self.esta_abierta(ahora):
+            raise EleccionNoAbierta("Fuera del horario de votación")
 
     def cerrar(self, ahora: datetime) -> None:
         self._exigir(EstadoEleccion.ABIERTA)
@@ -136,81 +150,24 @@ class Voto:
     """Voto en la urna: sin referencia al estudiante y sin marca de tiempo (ADR-002)."""
     eleccion: Eleccion
     lista: Lista
-    id: UUID = field(default_factory=uuid4)
+    id: Identificador = field(default_factory=uuid4)
 
 
-class NotificadorCorreo(ABC):  # puerto
+class CanalComprobante(ABC):  # puerto; rol STRATEGY: cómo se entrega el comprobante
     @abstractmethod
     def enviar_comprobante(self, correo: str, comprobante: Comprobante) -> None: ...
 
 
 class RepositorioVotacion(ABC):  # puerto
     @abstractmethod
-    def buscar_eleccion(self, id: UUID) -> Eleccion: ...
+    def buscar_eleccion(self, id: Identificador) -> Eleccion: ...
 
     @abstractmethod
-    def buscar_lista(self, id: UUID, eleccion_id: UUID) -> Lista: ...
+    def buscar_lista(self, id: Identificador, eleccion_id: Identificador) -> Lista: ...
 
     @abstractmethod
-    def buscar_estudiante(self, id: UUID) -> Estudiante: ...
+    def buscar_estudiante(self, id: Identificador) -> Estudiante: ...
 
     @abstractmethod
     def registrar(self, participacion: Participacion, voto: Voto) -> None:
         """Una sola transacción: padron.participacion (UNIQUE) + urna.voto."""
-
-
-class SmtpAdapter(NotificadorCorreo):  # adaptador
-    def enviar_comprobante(self, correo: str, comprobante: Comprobante) -> None:
-        raise NotImplementedError("Integrar con el servidor de correo (SMTP)")
-
-
-class PostgresRepositorioVotacion(RepositorioVotacion):  # adaptador
-    def buscar_eleccion(self, id: UUID) -> Eleccion:
-        raise NotImplementedError("Integrar con PostgreSQL")
-
-    def buscar_lista(self, id: UUID, eleccion_id: UUID) -> Lista:
-        raise NotImplementedError("Integrar con PostgreSQL")
-
-    def buscar_estudiante(self, id: UUID) -> Estudiante:
-        raise NotImplementedError("Integrar con PostgreSQL")
-
-    def registrar(self, participacion: Participacion, voto: Voto) -> None:
-        raise NotImplementedError("Integrar con PostgreSQL")
-
-
-class ServicioVotacion:  # servicio de aplicación
-    def __init__(self, repositorio: RepositorioVotacion, notificador: NotificadorCorreo,
-                 reloj: Callable[[], datetime] = datetime.now) -> None:
-        self._repositorio = repositorio
-        self._notificador = notificador
-        self._reloj = reloj
-
-    def emitir_voto(self, estudiante_id: UUID, eleccion_id: UUID, lista_id: UUID) -> Comprobante:
-        eleccion = self._repositorio.buscar_eleccion(eleccion_id)
-        ahora = self._reloj()
-        if not eleccion.esta_abierta(ahora):
-            raise EleccionNoAbierta("La elección no está abierta")
-        lista = self._repositorio.buscar_lista(lista_id, eleccion_id)
-        estudiante = self._repositorio.buscar_estudiante(estudiante_id)
-        participacion = Participacion(estudiante, eleccion, ahora)
-        voto = Voto(eleccion, lista)
-        self._registrar_con_reintentos(participacion, voto)
-        comprobante = participacion.emitir_comprobante()
-        self._notificar(estudiante.correo_institucional, comprobante)
-        return comprobante
-
-    def _registrar_con_reintentos(self, participacion: Participacion, voto: Voto) -> None:
-        for intento in range(1, MAX_INTENTOS + 1):
-            try:
-                self._repositorio.registrar(participacion, voto)
-                return
-            except ErrorTransitorio:
-                if intento == MAX_INTENTOS:
-                    raise
-
-    def _notificar(self, correo: str, comprobante: Comprobante) -> None:
-        # En producción se encola como tarea asíncrona; aquí es "mejor esfuerzo" y no bloquea el voto.
-        try:
-            self._notificador.enviar_comprobante(correo, comprobante)
-        except Exception:  # noqa: BLE001 - el voto ya está registrado
-            log.warning("No se pudo enviar el comprobante", exc_info=True)

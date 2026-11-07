@@ -1,7 +1,7 @@
 """Pruebas de caracterización de E1: describen lo que el sistema hace HOY.
 
 Los externos son dobles en memoria. Las mismas pruebas se ejecutan sobre la versión
-`antes` y, desde E2, también sobre la versión `despues`: si todas pasan en ambas, el
+`antes` y sobre la versión `despues` (`src/votacion/servicio.py`): si todas pasan en ambas, el
 refactor conservó el comportamiento observable. Se verifican estado, eventos y
 excepciones, nunca detalles internos.
 """
@@ -12,8 +12,7 @@ import pytest
 
 from src.votacion.externos import CorreoEnMemoria, RepositorioEnMemoria
 
-# En E2 se agrega "src.votacion.servicio" a esta lista.
-VERSIONES = ["src.votacion.antes.servicio"]
+VERSIONES = ["src.votacion.antes.servicio", "src.votacion.servicio"]
 
 
 @pytest.fixture(params=VERSIONES)
