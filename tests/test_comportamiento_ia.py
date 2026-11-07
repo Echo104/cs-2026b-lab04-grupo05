@@ -1,4 +1,8 @@
-"""Caracterización del asistente de reglamento (IA simulada; no se usa red ni claves)."""
+"""Caracterización del asistente de reglamento (IA simulada; no se usa red ni claves).
+
+La IA solo responde preguntas sobre el reglamento y NO participa en el conteo de votos.
+Se ejecutan sobre la versión `antes` y sobre la versión `despues`.
+"""
 import importlib
 
 import pytest
@@ -6,7 +10,7 @@ import pytest
 from src.votacion.externos import (ClienteLLMFalso, CorreoEnMemoria, ModeloLocalFalso,
                                    RepositorioEnMemoria)
 
-VERSIONES = ["src.votacion.antes.servicio"]
+VERSIONES = ["src.votacion.antes.servicio", "src.votacion.servicio"]
 
 
 @pytest.fixture(params=VERSIONES)

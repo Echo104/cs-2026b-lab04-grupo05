@@ -9,6 +9,9 @@ from src.votacion.dominio import (CanalComprobante, Comprobante, Eleccion, Estad
 from src.votacion.estados import (Abierta, Cerrada, Configurada, Escrutada, Publicada,
                                   etapa_desde_nombre)
 from src.votacion.eventos import PublicadorEventos, Suscriptor
+from src.votacion.externos import ClienteLLMFalso, ModeloLocalFalso
+from src.votacion.ia import (AlfaAdapter, AsistenteReglamento, ConCache, LongitudMaxima, ProveedorLLM,
+                             SinAfirmacionesProhibidas, SinDatosPersonales)
 from src.votacion.excepciones import (EleccionNoAbierta, ErrorTransitorio, ParticipacionDuplicada,
                                        TransicionInvalida)
 from src.votacion.repositorio import RepositorioAdapter, RepositorioConReintentos
@@ -218,3 +221,69 @@ def _participacion(repo, eleccion):
 
 def _voto(repo, eleccion):
     return Voto(eleccion, repo.buscar_lista("lista-1", "eleccion-1"))
+
+
+# ---------- E5: IA aislada (Strategy + Adapter + Decorator + Chain of Responsibility) ----------
+def asistente(alfa=None, beta=None):
+    return ServicioVotacion(RepositorioEnMemoria(), CorreoEnMemoria(), alfa=alfa, beta=beta).asistente
+
+
+def test_decorator_cache_evita_llamadas_repetidas_al_modelo():
+    alfa = ClienteLLMFalso()
+    a = asistente(alfa=alfa)
+    a.consultar("¿El voto es secreto?")
+    a.consultar("¿El voto es secreto?")
+    assert alfa.llamadas == 1
+    a.consultar("¿Quién puede votar?")
+    assert alfa.llamadas == 2
+
+
+@pytest.mark.parametrize(("respuesta", "mensaje"), [
+    ("Escriba a alumno@unsa.edu.pe", "datos personales"),
+    ("La Lista 1 va ganando", "no permitida"),
+    ("Según el resultado parcial...", "no permitida"),
+    ("Hoy se votó por la Lista 2", "no permitida"),
+])
+def test_chain_de_guardrails_bloquea_las_respuestas_invalidas(respuesta, mensaje):
+    with pytest.raises(ValueError, match=mensaje):
+        asistente(alfa=ClienteLLMFalso(respuesta)).consultar("pregunta")
+
+
+def test_chain_cada_eslabon_actua_de_forma_independiente_y_en_orden():
+    cadena = SinDatosPersonales(SinAfirmacionesProhibidas(LongitudMaxima(10)))
+    assert cadena.validar("hola") == "hola"
+    assert cadena.validar("a" * 30) == "a" * 7 + "..."
+    with pytest.raises(ValueError, match="datos personales"):
+        cadena.validar("x@y va ganando")                                # el primer eslabón decide
+    assert SinAfirmacionesProhibidas().validar("texto neutro") == "texto neutro"
+
+
+def test_strategy_proveedor_intercambiable_sin_modificar_el_servicio():
+    class ProveedorFijo(ProveedorLLM):
+        def completar(self, prompt):
+            return "Respuesta de un tercer proveedor."
+
+    a = asistente()
+    a.proveedores["GAMMA"] = ProveedorFijo()                           # extensión, no modificación
+    assert a.consultar("¿Hola?", proveedor="GAMMA") == "Respuesta de un tercer proveedor."
+
+
+def test_adapter_traduce_las_dos_interfaces_distintas_de_los_proveedores():
+    alfa, beta = ClienteLLMFalso("Texto alfa"), ModeloLocalFalso("Texto beta")
+    a = asistente(alfa=alfa, beta=beta)
+    assert a.consultar("p", "ALFA") == "Texto alfa" and a.consultar("p", "BETA") == "Texto beta"
+
+
+def test_la_ia_no_tiene_acceso_al_repositorio_ni_al_conteo():
+    repo = RepositorioEnMemoria()
+    s = ServicioVotacion(repo, CorreoEnMemoria())
+    s.consultar_reglamento("¿El voto es secreto?")
+    assert repo.llamadas_registrar == 0 and repo.registros == []
+    assert not hasattr(s.asistente, "_repositorio")
+
+
+def test_proveedor_inexistente_se_rechaza_antes_de_llamar_al_modelo():
+    alfa = ClienteLLMFalso()
+    with pytest.raises(ValueError, match="Proveedor no soportado"):
+        asistente(alfa=alfa).consultar("p", "GAMMA")
+    assert alfa.llamadas == 0

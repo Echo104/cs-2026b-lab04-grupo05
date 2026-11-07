@@ -1,7 +1,4 @@
-"""VERSIÓN DESPUÉS (E4): adaptadores + strategy/factory + observer + decorator de reintentos.
-
-Pendiente: el asistente de IA aislado (E5).
-"""
+"""VERSIÓN DESPUÉS: adaptadores, strategy/factory, observer, decorator y asistente de IA aislado."""
 from __future__ import annotations
 
 from datetime import datetime
@@ -10,6 +7,9 @@ from typing import Any
 from .canales import CorreoAdapter, FabricaCanales
 from .dominio import Identificador, Participacion, Voto
 from .eventos import NotificadorComprobante, PublicadorEventos, RegistroEventos
+from .externos import ClienteLLMFalso, ModeloLocalFalso
+from .ia import (AlfaAdapter, AsistenteReglamento, ConCache, LocalAdapter, LongitudMaxima,
+                 SinAfirmacionesProhibidas, SinDatosPersonales)
 from .repositorio import RepositorioAdapter, RepositorioConReintentos
 
 MAX_INTENTOS = 3
@@ -29,6 +29,12 @@ class ServicioVotacion:
         self.publicador.suscribir("voto_registrado", RegistroEventos(self.eventos))
         self.publicador.suscribir("notificacion_fallida", RegistroEventos(self.eventos))
 
+        # La IA solo responde sobre el reglamento: el asistente no recibe el repositorio.
+        self.asistente = AsistenteReglamento(
+            {"ALFA": ConCache(AlfaAdapter(alfa or ClienteLLMFalso())),
+             "BETA": ConCache(LocalAdapter(beta or ModeloLocalFalso()))},
+            SinDatosPersonales(SinAfirmacionesProhibidas(LongitudMaxima(240))))
+
     def emitir_voto(self, estudiante_id: Identificador, eleccion_id: Identificador,
                     lista_id: Identificador, ahora: datetime) -> dict:
         eleccion = self._repositorio.buscar_eleccion(eleccion_id)
@@ -46,3 +52,6 @@ class ServicioVotacion:
             "eleccion_id": eleccion.id,        # sin lista ni otros datos que revelen el voto
         })
         return {"codigo": comprobante.codigo, "fecha": comprobante.fecha_hora}
+
+    def consultar_reglamento(self, pregunta: str, proveedor: str = "ALFA") -> str:
+        return self.asistente.consultar(pregunta, proveedor)
