@@ -5,10 +5,13 @@ import pytest
 
 from src.votacion.canales import CorreoAdapter, FabricaCanales
 from src.votacion.dominio import (CanalComprobante, Comprobante, Eleccion, EstadoEleccion,
-                                  Lista)
+                                  Lista, Participacion, Voto)
 from src.votacion.estados import (Abierta, Cerrada, Configurada, Escrutada, Publicada,
                                   etapa_desde_nombre)
-from src.votacion.excepciones import EleccionNoAbierta, TransicionInvalida
+from src.votacion.eventos import PublicadorEventos, Suscriptor
+from src.votacion.excepciones import (EleccionNoAbierta, ErrorTransitorio, ParticipacionDuplicada,
+                                       TransicionInvalida)
+from src.votacion.repositorio import RepositorioAdapter, RepositorioConReintentos
 from src.votacion.externos import CorreoEnMemoria, RepositorioEnMemoria
 from src.votacion.servicio import ServicioVotacion
 
@@ -132,3 +135,86 @@ def test_state_factory_crea_la_etapa_por_nombre_y_rechaza_desconocidas():
         [Configurada, Abierta, Cerrada, Escrutada, Publicada]
     with pytest.raises(ValueError, match="desconocido"):
         etapa_desde_nombre("ANULADA")
+
+
+# ---------- E4: Observer ----------
+class Espia(Suscriptor):
+    def __init__(self):
+        self.recibidos = []
+
+    def actualizar(self, evento, datos):
+        self.recibidos.append((evento, dict(datos)))
+
+
+class Defectuoso(Suscriptor):
+    def actualizar(self, evento, datos):
+        raise RuntimeError("suscriptor roto")
+
+
+def test_observer_nuevo_suscriptor_sin_tocar_el_servicio():
+    servicio = ServicioVotacion(RepositorioEnMemoria(), CorreoEnMemoria())
+    espia = Espia()
+    servicio.publicador.suscribir("voto_registrado", espia)             # solo suscribir
+    servicio.emitir_voto("estudiante-1", "eleccion-1", "lista-1", AHORA)
+    assert [evento for evento, _ in espia.recibidos] == ["voto_registrado"]
+
+
+def test_observer_los_eventos_no_revelan_la_lista_elegida():
+    servicio = ServicioVotacion(RepositorioEnMemoria(), CorreoEnMemoria())
+    espia = Espia()
+    servicio.publicador.suscribir("voto_registrado", espia)
+    servicio.emitir_voto("estudiante-1", "eleccion-1", "lista-1", AHORA)
+    datos = espia.recibidos[0][1]
+    assert set(datos) == {"correo", "comprobante", "eleccion_id"}
+    assert "lista-1" not in repr(datos) and "Lista 1" not in repr(datos)
+
+
+def test_observer_un_suscriptor_defectuoso_no_anula_el_voto_ni_a_los_demas():
+    repo = RepositorioEnMemoria()
+    servicio = ServicioVotacion(repo, CorreoEnMemoria())
+    espia = Espia()
+    servicio.publicador.suscribir("voto_registrado", Defectuoso())
+    servicio.publicador.suscribir("voto_registrado", espia)
+    servicio.emitir_voto("estudiante-1", "eleccion-1", "lista-1", AHORA)
+    assert len(repo.registros) == 1 and len(espia.recibidos) == 1
+    assert servicio.publicador.fallos == [("voto_registrado", "Defectuoso", "suscriptor roto")]
+
+
+def test_observer_publicar_sin_suscriptores_no_hace_nada():
+    PublicadorEventos().publicar("evento_sin_nadie", {})
+
+
+# ---------- E4: Decorator ----------
+@pytest.mark.parametrize(("fallas", "llamadas"), [(0, 1), (2, 3)])
+def test_decorator_reintenta_solo_ante_errores_transitorios(fallas, llamadas):
+    externo = RepositorioEnMemoria(fallas_transitorias=fallas)
+    servicio = ServicioVotacion(externo, CorreoEnMemoria())
+    servicio.emitir_voto("estudiante-1", "eleccion-1", "lista-1", AHORA)
+    assert externo.llamadas_registrar == llamadas
+
+
+def test_decorator_se_agota_tras_los_intentos_configurados():
+    externo = RepositorioEnMemoria(fallas_transitorias=10)
+    repo = RepositorioConReintentos(RepositorioAdapter(externo), intentos=2)
+    eleccion = repo.buscar_eleccion("eleccion-1")
+    participacion = _participacion(repo, eleccion)
+    with pytest.raises(ErrorTransitorio):
+        repo.registrar(participacion, _voto(repo, eleccion))
+    assert externo.llamadas_registrar == 2
+
+
+def test_decorator_no_reintenta_errores_de_negocio_como_el_duplicado():
+    externo = RepositorioEnMemoria()
+    servicio = ServicioVotacion(externo, CorreoEnMemoria())
+    servicio.emitir_voto("estudiante-1", "eleccion-1", "lista-1", AHORA)
+    with pytest.raises(ParticipacionDuplicada):
+        servicio.emitir_voto("estudiante-1", "eleccion-1", "lista-1", AHORA)
+    assert externo.llamadas_registrar == 2                              # 1 por cada intento de voto
+
+
+def _participacion(repo, eleccion):
+    return Participacion(repo.buscar_estudiante("estudiante-1"), eleccion, AHORA)
+
+
+def _voto(repo, eleccion):
+    return Voto(eleccion, repo.buscar_lista("lista-1", "eleccion-1"))
