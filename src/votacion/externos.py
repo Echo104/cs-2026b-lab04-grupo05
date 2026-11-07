@@ -1,4 +1,8 @@
+"""Servicios externos SIMULADOS de VotoEPIS (no requieren red ni claves de API).
 
+Representan dependencias de terceros: sus interfaces son deliberadamente distintas
+entre sí, como ocurre en la realidad (repositorio, correo y dos modelos de lenguaje).
+"""
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -6,6 +10,10 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from types import SimpleNamespace
 from typing import Any
+
+
+class ErrorParticipacionDuplicada(ValueError):
+    """Error que lanza la base de datos simulada ante una segunda participación."""
 
 
 class RepositorioExterno(ABC):
@@ -77,7 +85,7 @@ class RepositorioEnMemoria(RepositorioExterno):
             raise TimeoutError("Tiempo de espera agotado al registrar")
         clave = (participacion["estudiante"].id, participacion["eleccion"].id)
         if clave in self.participaciones:
-            raise ValueError("Participación duplicada")
+            raise ErrorParticipacionDuplicada("Participación duplicada")
         self.participaciones.add(clave)
         self.registros.append((participacion, voto))
 
@@ -93,3 +101,32 @@ class CorreoEnMemoria(ServicioCorreoExterno):
         if self.fallar:
             raise RuntimeError("Servicio SMTP no disponible")
         self.enviados.append((correo, comprobante))
+
+
+class ClienteLLMFalso:
+    """Simula un modelo de lenguaje alojado (interfaz `completar`)."""
+
+    RESPUESTA_POR_DEFECTO = "El voto es personal, secreto y se emite una sola vez por elección (Art. 1)."
+
+    def __init__(self, respuesta: str | None = None):
+        self.respuesta = respuesta
+        self.llamadas = 0
+
+    def completar(self, prompt: str) -> str:
+        self.llamadas += 1
+        return self.respuesta if self.respuesta is not None else self.RESPUESTA_POR_DEFECTO
+
+
+class ModeloLocalFalso:
+    """Simula un modelo local con OTRA interfaz (`generate` devuelve un diccionario)."""
+
+    def __init__(self, respuesta: str | None = None):
+        self.respuesta = respuesta
+        self.llamadas = 0
+
+    def generate(self, model: str, text: str) -> dict:
+        self.llamadas += 1
+        texto = self.respuesta if self.respuesta is not None else (
+            "Solo votan los estudiantes del padrón y el voto es secreto (Art. 2)."
+        )
+        return {"model": model, "response": texto}
