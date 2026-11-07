@@ -158,6 +158,37 @@ C4Context
 ### Documentos
 [inventario.md](docs/architecture/c4/inventario.md) · [comparacion.md](docs/architecture/c4/comparacion.md) · [revision-c4.md](docs/architecture/c4/revision-c4.md) · [explicacion.md](docs/architecture/c4/explicacion.md) · [bitacora-ia.md](docs/architecture/c4/bitacora-ia.md) · [contexto-manual.puml](docs/architecture/c4/contexto-manual.puml)
 
+## Patrones de diseño (Lab 07)
+Refactor del flujo crítico «emitir voto» (versión ingenua en `src/votacion/antes/`, versión con patrones en `src/votacion/`), protegido por pruebas de caracterización que se ejecutan sobre ambas versiones. Decisión: [ADR-005](docs/architecture/adr/005-patrones-de-diseno.md).
+
+### Olor → patrón → prueba
+| Olor | Patrón | Prueba que lo demuestra (`tests/test_patrones.py`) |
+|------|--------|-----------------------------------------------------|
+| El servicio conoce las interfaces de los servicios externos | Adapter | `test_adapter_traduce_el_comprobante_a_la_interfaz_del_correo_externo` |
+| Canal de comprobante fijo en el servicio (cambio previsto) | Strategy + Factory | `test_open_closed_nuevo_canal_sin_modificar_el_servicio` |
+| Condicionales sobre el estado de la elección | State | `test_state_impide_transiciones_invalidas` |
+| Registro de eventos y envío del comprobante «a mano» | Observer | `test_observer_nuevo_suscriptor_sin_tocar_el_servicio` |
+| Bucle de reintentos mezclado con el flujo | Decorator | `test_decorator_no_reintenta_errores_de_negocio_como_el_duplicado` |
+| Proveedor de IA con `if/elif` y validaciones mezcladas | Strategy + Adapter + Chain of Responsibility | `test_chain_de_guardrails_bloquea_las_respuestas_invalidas` |
+| Misma pregunta al modelo pagada varias veces | Decorator (caché) | `test_decorator_cache_evita_llamadas_repetidas_al_modelo` |
+
+Rechazados: Singleton, Abstract Factory, Command y Chain para la elegibilidad (justificación en [metricas.md](docs/design/patrones/metricas.md)).
+
+### Métricas (radon)
+| Medida | Antes | Después |
+|--------|-------|---------|
+| Complejidad de `emitir_voto()` | 8 (B) | 1 (A) |
+| Complejidad de `consultar_reglamento()` | 7 (B) | 1 (A) |
+| Promedio de complejidad | 6,25 | 1,62 |
+| Líneas de código (SLOC) | 65 | 278 (371 con el dominio) |
+| Archivos | 1 | 7 (8 con el dominio) |
+| Métodos a modificar para agregar un canal o proveedor | 1 | 0 |
+
+Los patrones agregan código e indirección: se justifican por los cambios previstos, no por sí mismos.
+
+### Documentos
+[olores.md](docs/design/patrones/olores.md) · [metricas.md](docs/design/patrones/metricas.md) · [bitacora-ia.md](docs/design/patrones/bitacora-ia.md) · diagramas: [canales](docs/design/patrones/canales.puml), [estados](docs/design/patrones/estados.puml), [eventos](docs/design/patrones/eventos.puml), [reintentos](docs/design/patrones/reintentos.puml), [ia](docs/design/patrones/ia.puml), [secuencia](docs/design/patrones/secuencia.puml) · `python -m pytest -v`
+
 ## Notas
 
 - Las imágenes de `diagramas/img/` se generan desde el código fuente de los diagramas. Consultar la lista de verificación de E3, E5 y E6 en la guía.
