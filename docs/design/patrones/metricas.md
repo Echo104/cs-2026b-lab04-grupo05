@@ -3,10 +3,6 @@
 Mediciones sobre el flujo «emitir voto» y el asistente de reglamento. Las cifras salen de
 `radon-antes.txt` y `radon-despues.txt`.
 
-> **Nota de reproducibilidad:** las cifras se calcularon con un calculador equivalente a
-> `radon cc -s -a` / `radon raw -s` (validado contra el ejemplo del docente: reproduce 15, 10, 7, 6,5
-> y 81/207 líneas). Ejecute radon real y, si algún valor difiere, actualice esta tabla.
-
 ## Complejidad ciclomática (radon cc)
 | Bloque | Antes | Después |
 |--------|-------|---------|
