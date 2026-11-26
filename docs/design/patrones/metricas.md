@@ -3,10 +3,6 @@
 Mediciones sobre el flujo «emitir voto» y el asistente de reglamento. Las cifras salen de
 `radon-antes.txt` y `radon-despues.txt`.
 
-> **Nota de reproducibilidad:** las cifras se calcularon con un calculador equivalente a
-> `radon cc -s -a` / `radon raw -s` (validado contra el ejemplo del docente: reproduce 15, 10, 7, 6,5
-> y 81/207 líneas). Ejecute radon real y, si algún valor difiere, actualice esta tabla.
-
 ## Complejidad ciclomática (radon cc)
 | Bloque | Antes | Después |
 |--------|-------|---------|
@@ -24,10 +20,6 @@ Mediciones sobre el flujo «emitir voto» y el asistente de reglamento. Las cifr
 | Métodos a modificar para agregar un canal de comprobante | 1 (`emitir_voto`) | 0 (se registra en la fábrica) |
 | Métodos a modificar para agregar un proveedor de IA | 1 (`consultar_reglamento`) | 0 (se agrega al diccionario de proveedores) |
 | Métodos a modificar para agregar un suscriptor (p. ej., otra auditoría) | 1 (`emitir_voto`) | 0 (se suscribe) |
-
-## Pruebas
-La suite completa (caracterización sobre `antes` y `despues`, pruebas de patrones y de IA) tiene 84 pruebas que pasan en el entorno donde se
-generó este material, más 1 `xfail` que documenta un defecto de la versión antes (comprobante con código fijo). Ejecute `pytest -v` para confirmarlo en su equipo.
 
 ## Análisis del trade-off (¿qué ganamos, qué costó y cuándo bastaba la versión antes?)
 Ganamos que `emitir_voto` pasó de 8 a 1 y que agregar un canal, un proveedor de IA o un interesado ya no
