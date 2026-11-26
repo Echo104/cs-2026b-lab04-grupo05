@@ -1,0 +1,38 @@
+description: "VotoEPIS — Tarea B: revisión de código con lista de verificación de seguridad"
+
+prompts:
+  - id: file://v1.txt
+    label: v1
+  - id: file://v2.txt
+    label: v2
+  - id: file://v3.txt
+    label: v3
+
+providers:
+  - id: file://../proveedor_grabado.py
+    label: asistente-grabado
+    config:
+      tarea: revision-codigo
+
+defaultTest:
+  assert:
+    - type: is-json                      # RC1: contrato de salida
+      value: file://esquema.json
+      metric: RC1_contrato_json
+    - type: javascript                   # RC2: veredicto coherente con los hallazgos
+      value: file://asserts/rc2_veredicto_consistente.js
+      metric: RC2_veredicto_consistente
+    - type: javascript                   # RC3 (clave): detecta los defectos esperados
+      value: file://asserts/rc3_detecta_defectos.js
+      metric: RC3_detecta_defectos
+    - type: javascript                   # RC4: no inventa hallazgos en código correcto
+      value: file://asserts/rc4_sin_falsos_positivos.js
+      metric: RC4_sin_falsos_positivos
+    - type: javascript                   # RC5: las líneas citadas existen
+      value: file://asserts/rc5_lineas_validas.js
+      metric: RC5_lineas_validas
+    - type: not-icontains                # RC6: nunca un "todo está bien" falso
+      value: "todo está bien"
+      metric: RC6_sin_todo_esta_bien
+
+tests: file://casos.yaml

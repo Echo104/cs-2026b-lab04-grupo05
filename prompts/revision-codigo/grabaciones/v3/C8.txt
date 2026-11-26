@@ -1,0 +1,13 @@
+{
+  "archivo": "conteo.py",
+  "veredicto": "con_hallazgos",
+  "hallazgos": [
+    {
+      "linea": 3,
+      "regla": "S2",
+      "severidad": "alta",
+      "descripcion": "La consulta concatena eleccion_id dentro del SQL; permite inyección SQL.",
+      "correccion": "Usar un parámetro: WHERE eleccion_id = %s con (eleccion_id,)."
+    }
+  ]
+}

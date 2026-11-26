@@ -1,0 +1,1 @@
+Veo que se guarda el estudiante_id en la tabla urna junto con la lista. Eso podría permitir saber por quién votó cada persona. Convendría separar ambos datos.

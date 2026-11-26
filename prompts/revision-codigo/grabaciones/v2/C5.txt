@@ -1,0 +1,15 @@
+```json
+{
+  "archivo": "otp.py",
+  "veredicto": "con_hallazgos",
+  "hallazgos": [
+    {
+      "linea": 2,
+      "regla": "S5",
+      "severidad": "media",
+      "descripcion": "El código OTP no expira ni limita intentos.",
+      "correccion": "Agregar expiración y un máximo de intentos."
+    }
+  ]
+}
+```

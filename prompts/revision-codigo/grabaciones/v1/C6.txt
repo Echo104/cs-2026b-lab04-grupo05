@@ -1,0 +1,1 @@
+El código parece seguro: usa una consulta parametrizada y no guarda datos del estudiante.

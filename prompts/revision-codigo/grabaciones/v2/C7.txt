@@ -1,0 +1,13 @@
+{
+  "archivo": "participacion.py",
+  "veredicto": "con_hallazgos",
+  "hallazgos": [
+    {
+      "linea": 2,
+      "regla": "S4",
+      "severidad": "alta",
+      "descripcion": "Se consulta y luego se inserta: dos solicitudes simultáneas pueden duplicar la participación.",
+      "correccion": "Usar una restricción única y un INSERT atómico."
+    }
+  ]
+}

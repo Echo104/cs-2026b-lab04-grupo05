@@ -1,0 +1,1 @@
+La contraseña del correo está escrita directamente en el código. Es mejor guardarla en una variable de entorno.

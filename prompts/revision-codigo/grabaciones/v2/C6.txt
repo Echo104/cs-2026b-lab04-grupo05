@@ -1,0 +1,13 @@
+{
+  "archivo": "urna_ok.py",
+  "veredicto": "con_hallazgos",
+  "hallazgos": [
+    {
+      "linea": 2,
+      "regla": "S4",
+      "severidad": "baja",
+      "descripcion": "No se verifica que el estudiante no haya votado antes.",
+      "correccion": "Verificar la participación previa antes de insertar."
+    }
+  ]
+}

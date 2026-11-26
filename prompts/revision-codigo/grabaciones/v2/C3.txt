@@ -1,0 +1,13 @@
+{
+  "archivo": "correo.py",
+  "veredicto": "con_hallazgos",
+  "hallazgos": [
+    {
+      "linea": 3,
+      "regla": "S3",
+      "severidad": "alta",
+      "descripcion": "La contraseña SMTP está escrita en el código.",
+      "correccion": "Leerla desde una variable de entorno."
+    }
+  ]
+}

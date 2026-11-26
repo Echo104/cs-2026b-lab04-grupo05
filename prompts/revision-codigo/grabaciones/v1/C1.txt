@@ -1,0 +1,1 @@
+El código tiene un problema de seguridad: la consulta SQL se construye concatenando el correo, lo que permite inyección SQL. Se recomienda usar consultas parametrizadas.

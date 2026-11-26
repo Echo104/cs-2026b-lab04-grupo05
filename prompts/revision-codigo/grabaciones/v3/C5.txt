@@ -1,0 +1,13 @@
+{
+  "archivo": "otp.py",
+  "veredicto": "con_hallazgos",
+  "hallazgos": [
+    {
+      "linea": 2,
+      "regla": "S5",
+      "severidad": "media",
+      "descripcion": "El código OTP se compara sin verificar expiración ni número de intentos.",
+      "correccion": "Rechazar el código vencido, limitar a 3 intentos y comparar con hmac.compare_digest."
+    }
+  ]
+}

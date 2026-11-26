@@ -1,0 +1,13 @@
+{
+  "archivo": "correo.py",
+  "veredicto": "con_hallazgos",
+  "hallazgos": [
+    {
+      "linea": 3,
+      "regla": "S3",
+      "severidad": "alta",
+      "descripcion": "La contraseña de la cuenta de correo está escrita en el código.",
+      "correccion": "Leer la clave desde una variable de entorno o un gestor de secretos."
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "archivo": "padron.py",
+  "veredicto": "con_hallazgos",
+  "hallazgos": [
+    {
+      "linea": 2,
+      "regla": "S2",
+      "severidad": "alta",
+      "descripcion": "La consulta concatena el correo dentro del SQL.",
+      "correccion": "Usar una consulta parametrizada con %s."
+    }
+  ]
+}

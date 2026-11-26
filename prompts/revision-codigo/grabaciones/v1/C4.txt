@@ -1,0 +1,1 @@
+El log registra el correo del estudiante y la lista. Es información sensible que no debería guardarse.

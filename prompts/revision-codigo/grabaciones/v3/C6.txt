@@ -1,0 +1,5 @@
+{
+  "archivo": "urna_ok.py",
+  "veredicto": "aprobado",
+  "hallazgos": []
+}

@@ -1,0 +1,25 @@
+{
+  "title": "Revisión de seguridad de código — VotoEPIS",
+  "type": "object",
+  "required": ["archivo", "veredicto", "hallazgos"],
+  "additionalProperties": false,
+  "properties": {
+    "archivo": {"type": "string", "minLength": 1},
+    "veredicto": {"enum": ["aprobado", "con_hallazgos"]},
+    "hallazgos": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["linea", "regla", "severidad", "descripcion", "correccion"],
+        "additionalProperties": false,
+        "properties": {
+          "linea": {"type": "integer", "minimum": 1},
+          "regla": {"enum": ["S1", "S2", "S3", "S4", "S5", "S6"]},
+          "severidad": {"enum": ["alta", "media", "baja"]},
+          "descripcion": {"type": "string", "minLength": 10},
+          "correccion": {"type": "string", "minLength": 10}
+        }
+      }
+    }
+  }
+}

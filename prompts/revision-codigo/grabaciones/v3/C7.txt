@@ -1,0 +1,13 @@
+{
+  "archivo": "participacion.py",
+  "veredicto": "con_hallazgos",
+  "hallazgos": [
+    {
+      "linea": 3,
+      "regla": "S4",
+      "severidad": "alta",
+      "descripcion": "La verificación y el registro de la participación no son atómicos: dos solicitudes simultáneas pueden duplicarla.",
+      "correccion": "Crear una restricción única (estudiante, elección) y manejar el error de duplicado."
+    }
+  ]
+}

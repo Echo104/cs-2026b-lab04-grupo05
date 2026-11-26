@@ -1,0 +1,13 @@
+{
+  "archivo": "votacion.py",
+  "veredicto": "con_hallazgos",
+  "hallazgos": [
+    {
+      "linea": 5,
+      "regla": "S6",
+      "severidad": "media",
+      "descripcion": "El log registra el correo del estudiante junto con la lista elegida.",
+      "correccion": "Registrar solo un identificador de la operación, sin correo ni lista."
+    }
+  ]
+}

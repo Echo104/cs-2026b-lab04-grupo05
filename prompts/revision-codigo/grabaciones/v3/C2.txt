@@ -1,0 +1,13 @@
+{
+  "archivo": "urna.py",
+  "veredicto": "con_hallazgos",
+  "hallazgos": [
+    {
+      "linea": 2,
+      "regla": "S1",
+      "severidad": "alta",
+      "descripcion": "La tabla urna guarda estudiante_id junto con lista_id: se puede saber por quién votó cada estudiante.",
+      "correccion": "Quitar estudiante_id de la urna y registrar la participación en una tabla separada."
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "archivo": "votacion.py",
+  "veredicto": "con_hallazgos",
+  "hallazgos": [
+    {
+      "linea": 5,
+      "regla": "S6",
+      "severidad": "media",
+      "descripcion": "El log contiene el correo del estudiante.",
+      "correccion": "Quitar el correo del mensaje de log."
+    }
+  ]
+}
