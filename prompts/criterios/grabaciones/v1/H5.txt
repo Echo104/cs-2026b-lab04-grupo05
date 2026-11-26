@@ -1,0 +1,4 @@
+Criterios de aceptación:
+1. Al llegar la hora de cierre, el sistema cuenta los votos automáticamente.
+2. Se muestra el total de votos por lista.
+3. El conteo no debe tener errores.

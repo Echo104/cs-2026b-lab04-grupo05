@@ -1,0 +1,5 @@
+Criterios de aceptación:
+1. El sistema responde en menos de 3 segundos.
+2. El sistema usa contraseñas seguras.
+3. La interfaz es fácil de usar.
+4. Los datos están protegidos.

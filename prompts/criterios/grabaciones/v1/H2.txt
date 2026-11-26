@@ -1,0 +1,5 @@
+Criterios de aceptación:
+1. El estudiante puede elegir una lista y votar.
+2. El voto se guarda de forma anónima en la base de datos.
+3. El estudiante no puede votar dos veces.
+4. El sistema debe ser fácil de usar.

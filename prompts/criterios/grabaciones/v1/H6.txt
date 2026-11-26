@@ -1,0 +1,4 @@
+Criterios de aceptación:
+1. El auditor puede descargar la urna en un archivo.
+2. El archivo no contiene datos de los estudiantes.
+3. El archivo incluye una huella para verificar que no fue alterado.

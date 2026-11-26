@@ -1,0 +1,5 @@
+Criterios de aceptación:
+1. El comité puede registrar las listas participantes.
+2. El comité puede definir la fecha y hora de apertura y de cierre.
+3. La configuración se guarda en la base de datos.
+4. El sistema debe validar los datos ingresados.

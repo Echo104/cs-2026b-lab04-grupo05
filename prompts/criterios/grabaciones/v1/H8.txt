@@ -1,0 +1,5 @@
+Criterios de aceptación:
+1. La base de datos usa PostgreSQL.
+2. Existen dos esquemas separados.
+3. Redis guarda las sesiones de los usuarios.
+4. El sistema se conecta correctamente a ambos servicios.

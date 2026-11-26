@@ -1,0 +1,5 @@
+Criterios de aceptación:
+1. El estudiante recibe un código en su correo institucional.
+2. El estudiante ingresa el código y accede a la votación.
+3. Solo los estudiantes que figuran en el padrón pueden acceder.
+4. El sistema debe ser seguro.

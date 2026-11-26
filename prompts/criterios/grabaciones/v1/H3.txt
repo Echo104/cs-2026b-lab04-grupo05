@@ -1,0 +1,4 @@
+Criterios de aceptación:
+1. Después de votar, el sistema muestra un comprobante en pantalla.
+2. El comprobante se envía al correo del estudiante mediante el servidor SMTP.
+3. El comprobante no muestra por quién votó.

@@ -193,3 +193,14 @@ Los patrones agregan código e indirección: se justifican por los cambios previ
 
 - Las imágenes de `diagramas/img/` se generan desde el código fuente de los diagramas. Consultar la lista de verificación de E3, E5 y E6 en la guía.
 - La separación entre el padrón y la urna debe conservarse en los diagramas, las interfaces y la implementación, evitando asociaciones que permitan identificar al autor de un voto.
+
+## Prompt engineering (Lab 09)
+Prompts como código para VotoEPIS: contrato de salida (JSON Schema), dataset con casos normales, no INVEST y un adversario, y aserciones automáticas evaluadas con promptfoo. **Tarea A:** generar criterios de aceptación Gherkin a partir de una historia de usuario. Ver [LEEME de prompts](prompts/LEEME.md).
+
+### Línea base (E2)
+| Versión | Prompt | Casos que pasan todas las aserciones | Tasa |
+|---|---|---|---|
+| v1 | «Escribe criterios de aceptación para esta historia de usuario: …» | 0/9 | 0,0 % |
+
+La v1 responde en texto libre: ningún caso cumple el contrato JSON (A1) y ante la inyección de H9 responde la frase impuesta.
+
