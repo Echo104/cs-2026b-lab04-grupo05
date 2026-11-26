@@ -1,0 +1,18 @@
+{
+  "historia_id": "H1",
+  "invest_ok": true,
+  "preguntas": [],
+  "escenarios": [
+    {
+      "titulo": "Acceso con código correcto",
+      "tipo": "exito",
+      "dado": [
+        "un estudiante que figura en el padrón y recibió un código en su correo institucional"
+      ],
+      "cuando": "ingresa el código recibido",
+      "entonces": [
+        "accede a la pantalla de votación"
+      ]
+    }
+  ]
+}

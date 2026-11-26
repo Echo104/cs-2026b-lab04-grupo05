@@ -1,0 +1,10 @@
+{
+  "historia_id": "H7",
+  "invest_ok": false,
+  "preguntas": [
+    "¿Qué tiempo de respuesta máximo espera el estudiante al emitir su voto (por ejemplo, 3 segundos)?",
+    "¿Qué significa «seguro» para el comité: voto secreto, un voto por persona o ambos?",
+    "¿Qué acciones concretas deben ser rápidas y seguras: ingresar, votar o ver el comprobante?"
+  ],
+  "escenarios": []
+}

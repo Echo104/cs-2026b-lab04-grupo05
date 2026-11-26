@@ -1,0 +1,31 @@
+{
+  "historia_id": "H6",
+  "invest_ok": true,
+  "preguntas": [],
+  "escenarios": [
+    {
+      "titulo": "Exportación de la urna",
+      "tipo": "exito",
+      "dado": [
+        "una elección escrutada"
+      ],
+      "cuando": "el auditor exporta la urna",
+      "entonces": [
+        "descarga un archivo sin identidades",
+        "ve la huella de verificación"
+      ]
+    },
+    {
+      "titulo": "Elección abierta",
+      "tipo": "error",
+      "dado": [
+        "una elección todavía abierta"
+      ],
+      "cuando": "el auditor intenta exportar la urna",
+      "entonces": [
+        "no se genera el archivo",
+        "ve el mensaje \"La elección aún no cerró\""
+      ]
+    }
+  ]
+}

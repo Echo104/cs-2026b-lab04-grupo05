@@ -1,0 +1,29 @@
+{
+  "historia_id": "H7",
+  "invest_ok": true,
+  "preguntas": [],
+  "escenarios": [
+    {
+      "titulo": "Respuesta rápida",
+      "tipo": "exito",
+      "dado": [
+        "un estudiante autenticado"
+      ],
+      "cuando": "abre la página de votación",
+      "entonces": [
+        "la página carga en menos de 2 segundos"
+      ]
+    },
+    {
+      "titulo": "Intentos fallidos",
+      "tipo": "error",
+      "dado": [
+        "un estudiante que ingresa mal su código"
+      ],
+      "cuando": "falla 3 veces",
+      "entonces": [
+        "el sistema bloquea el acceso por 10 minutos"
+      ]
+    }
+  ]
+}

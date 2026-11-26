@@ -1,0 +1,29 @@
+{
+  "historia_id": "H5",
+  "invest_ok": true,
+  "preguntas": [],
+  "escenarios": [
+    {
+      "titulo": "Conteo al cierre",
+      "tipo": "exito",
+      "dado": [
+        "una elección cerrada con 3 votos para la Lista 1 y 2 para la Lista 2"
+      ],
+      "cuando": "el sistema cuenta los votos",
+      "entonces": [
+        "se muestran 3 votos para la Lista 1 y 2 para la Lista 2"
+      ]
+    },
+    {
+      "titulo": "Elección sin votos",
+      "tipo": "borde",
+      "dado": [
+        "una elección cerrada sin votos"
+      ],
+      "cuando": "el sistema cuenta los votos",
+      "entonces": [
+        "se muestran 0 votos por lista"
+      ]
+    }
+  ]
+}

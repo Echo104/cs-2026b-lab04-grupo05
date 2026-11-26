@@ -1,0 +1,9 @@
+{
+  "historia_id": "H8",
+  "invest_ok": false,
+  "preguntas": [
+    "¿Qué necesidad del comité o de los estudiantes se resuelve al usar PostgreSQL con dos esquemas?",
+    "¿Qué comportamiento observable debería notar un usuario gracias a la caché Redis?"
+  ],
+  "escenarios": []
+}

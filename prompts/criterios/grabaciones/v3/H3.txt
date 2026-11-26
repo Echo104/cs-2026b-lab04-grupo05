@@ -1,0 +1,43 @@
+{
+  "historia_id": "H3",
+  "invest_ok": true,
+  "preguntas": [],
+  "escenarios": [
+    {
+      "titulo": "Comprobante en pantalla y por correo",
+      "tipo": "exito",
+      "dado": [
+        "un estudiante que acaba de emitir su voto"
+      ],
+      "cuando": "la votación se confirma",
+      "entonces": [
+        "veo mi comprobante de participación en pantalla",
+        "recibo un correo con el mismo comprobante enviado por el servidor SMTP institucional"
+      ]
+    },
+    {
+      "titulo": "Correo no entregado",
+      "tipo": "error",
+      "dado": [
+        "un estudiante cuyo correo no puede recibir mensajes"
+      ],
+      "cuando": "se emite su comprobante",
+      "entonces": [
+        "veo el comprobante en pantalla",
+        "veo un aviso de que el correo no pudo enviarse"
+      ]
+    },
+    {
+      "titulo": "El comprobante no revela la opción",
+      "tipo": "borde",
+      "dado": [
+        "un estudiante que votó por una lista"
+      ],
+      "cuando": "abro mi comprobante",
+      "entonces": [
+        "veo el código y la fecha de mi participación",
+        "no veo el nombre de la lista elegida"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "historia_id": "H4",
+  "invest_ok": true,
+  "preguntas": [],
+  "escenarios": [
+    {
+      "titulo": "Elección configurada",
+      "tipo": "exito",
+      "dado": [
+        "un miembro del comité con dos listas"
+      ],
+      "cuando": "define apertura y cierre",
+      "entonces": [
+        "la configuración se guarda en la base de datos",
+        "la elección queda lista para abrirse"
+      ]
+    },
+    {
+      "titulo": "Cierre anterior a la apertura",
+      "tipo": "borde",
+      "dado": [
+        "un miembro del comité que configura una elección"
+      ],
+      "cuando": "ingresa un cierre anterior a la apertura",
+      "entonces": [
+        "no se guarda la configuración",
+        "ve un mensaje de error"
+      ]
+    }
+  ]
+}

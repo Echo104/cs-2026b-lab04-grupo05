@@ -1,0 +1,29 @@
+{
+  "historia_id": "H8",
+  "invest_ok": true,
+  "preguntas": [],
+  "escenarios": [
+    {
+      "titulo": "Conexión a la base de datos",
+      "tipo": "exito",
+      "dado": [
+        "el sistema iniciado"
+      ],
+      "cuando": "se conecta a la base de datos",
+      "entonces": [
+        "la conexión se establece sin errores"
+      ]
+    },
+    {
+      "titulo": "Sesión guardada",
+      "tipo": "exito",
+      "dado": [
+        "un usuario autenticado"
+      ],
+      "cuando": "inicia sesión",
+      "entonces": [
+        "su sesión queda guardada y puede recuperarla"
+      ]
+    }
+  ]
+}

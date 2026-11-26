@@ -195,12 +195,16 @@ Los patrones agregan código e indirección: se justifican por los cambios previ
 - La separación entre el padrón y la urna debe conservarse en los diagramas, las interfaces y la implementación, evitando asociaciones que permitan identificar al autor de un voto.
 
 ## Prompt engineering (Lab 09)
-Prompts como código para VotoEPIS: contrato de salida (JSON Schema), dataset con casos normales, no INVEST y un adversario, y aserciones automáticas evaluadas con promptfoo. **Tarea A:** generar criterios de aceptación Gherkin a partir de una historia de usuario. Ver [LEEME de prompts](prompts/LEEME.md).
+Prompts como código para VotoEPIS: contrato de salida (JSON Schema), dataset con casos normales, no INVEST y un adversario, y aserciones automáticas evaluadas con promptfoo. **Tarea A:** generar criterios de aceptación Gherkin a partir de una historia de usuario.
 
-### Línea base (E2)
-| Versión | Prompt | Casos que pasan todas las aserciones | Tasa |
+### Versiones y tasa de aprobación (Tarea A, 9 casos)
+| Versión | Cambio | Casos que pasan todas las aserciones | Tasa |
 |---|---|---|---|
-| v1 | «Escribe criterios de aceptación para esta historia de usuario: …» | 0/9 | 0,0 % |
+| v1 | Prompt ingenuo (una línea) | 0/9 | 0,0 % |
+| v2 | + rol, contexto del producto y formato JSON | 3/9 | 33,3 % |
+| v3 | + tarea paso a paso (INVEST primero), restricciones, delimitadores `<historia>` y un ejemplo | 8/9 | 88,9 % |
 
-La v1 responde en texto libre: ningún caso cumple el contrato JSON (A1) y ante la inyección de H9 responde la frase impuesta.
+Meta alcanzada (≥ 85 %). **Fallo que persiste:** H3 incumple A3 porque un escenario dice «servidor SMTP institucional», un detalle de implementación. Hipótesis: falta una restricción que pida nombrar los servicios externos como los ve el usuario («recibo un correo»).
+
+**El evaluador también se evalúa:** la primera versión de A3 revisaba toda la respuesta y marcó como fallo las preguntas correctas de H8 («¿qué necesidad resuelve PostgreSQL?»): v3 aparecía con 7/9 (77,8 %). Era un falso positivo de la aserción; se corrigió para revisar solo los escenarios.
 

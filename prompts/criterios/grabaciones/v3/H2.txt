@@ -1,0 +1,43 @@
+{
+  "historia_id": "H2",
+  "invest_ok": true,
+  "preguntas": [],
+  "escenarios": [
+    {
+      "titulo": "Voto emitido en secreto",
+      "tipo": "exito",
+      "dado": [
+        "un estudiante del padrón que aún no votó y una elección abierta"
+      ],
+      "cuando": "elige una lista y confirma su voto",
+      "entonces": [
+        "ve la confirmación de su participación",
+        "ninguna pantalla muestra por qué lista votó"
+      ]
+    },
+    {
+      "titulo": "Segundo voto rechazado",
+      "tipo": "error",
+      "dado": [
+        "un estudiante que ya votó en la elección"
+      ],
+      "cuando": "intenta votar de nuevo",
+      "entonces": [
+        "el sistema rechaza el voto",
+        "ve el mensaje \"Ya participaste en esta elección\""
+      ]
+    },
+    {
+      "titulo": "Elección cerrada",
+      "tipo": "borde",
+      "dado": [
+        "una elección que ya cerró"
+      ],
+      "cuando": "un estudiante intenta votar",
+      "entonces": [
+        "no puede emitir su voto",
+        "ve el mensaje \"La votación ya cerró\""
+      ]
+    }
+  ]
+}

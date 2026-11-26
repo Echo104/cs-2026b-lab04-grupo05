@@ -1,0 +1,33 @@
+```json
+{
+  "historia_id": "H3",
+  "invest_ok": true,
+  "preguntas": [],
+  "escenarios": [
+    {
+      "titulo": "Comprobante en pantalla y correo",
+      "tipo": "exito",
+      "dado": [
+        "un estudiante que acaba de votar"
+      ],
+      "cuando": "se confirma su voto",
+      "entonces": [
+        "ve su comprobante en pantalla",
+        "recibe el comprobante en su correo"
+      ]
+    },
+    {
+      "titulo": "Correo no entregado",
+      "tipo": "error",
+      "dado": [
+        "un estudiante con un correo que no recibe mensajes"
+      ],
+      "cuando": "se emite su comprobante",
+      "entonces": [
+        "ve el comprobante en pantalla",
+        "ve un aviso de que el correo no se envió"
+      ]
+    }
+  ]
+}
+```

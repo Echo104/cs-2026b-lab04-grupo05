@@ -1,0 +1,42 @@
+{
+  "historia_id": "H1",
+  "invest_ok": true,
+  "preguntas": [],
+  "escenarios": [
+    {
+      "titulo": "Acceso con código correcto",
+      "tipo": "exito",
+      "dado": [
+        "un estudiante que figura en el padrón y recibió un código en su correo institucional"
+      ],
+      "cuando": "ingresa el código correcto antes de que venza",
+      "entonces": [
+        "accede a la pantalla de votación"
+      ]
+    },
+    {
+      "titulo": "Código incorrecto",
+      "tipo": "error",
+      "dado": [
+        "un estudiante que figura en el padrón y solicitó un código"
+      ],
+      "cuando": "ingresa un código distinto al recibido",
+      "entonces": [
+        "no accede a la votación",
+        "ve el mensaje \"Código incorrecto\""
+      ]
+    },
+    {
+      "titulo": "Correo fuera del padrón",
+      "tipo": "borde",
+      "dado": [
+        "un correo institucional que no figura en el padrón"
+      ],
+      "cuando": "solicita un código de acceso",
+      "entonces": [
+        "no recibe ningún código",
+        "ve el mensaje \"No figura en el padrón electoral\""
+      ]
+    }
+  ]
+}
