@@ -1,0 +1,43 @@
+{
+  "historia_id": "H4",
+  "invest_ok": true,
+  "preguntas": [],
+  "escenarios": [
+    {
+      "titulo": "Elección configurada",
+      "tipo": "exito",
+      "dado": [
+        "un miembro del comité con dos listas registradas"
+      ],
+      "cuando": "define la apertura el 20/11 a las 08:00 y el cierre a las 18:00",
+      "entonces": [
+        "la elección queda configurada con esas fechas",
+        "la votación solo se habilita en esa ventana"
+      ]
+    },
+    {
+      "titulo": "Cierre anterior a la apertura",
+      "tipo": "error",
+      "dado": [
+        "un miembro del comité que configura una elección"
+      ],
+      "cuando": "ingresa un cierre anterior a la apertura",
+      "entonces": [
+        "el sistema no guarda la configuración",
+        "veo el mensaje \"El cierre debe ser posterior a la apertura\""
+      ]
+    },
+    {
+      "titulo": "Elección sin listas",
+      "tipo": "borde",
+      "dado": [
+        "una elección sin listas registradas"
+      ],
+      "cuando": "intento abrirla",
+      "entonces": [
+        "la elección no se abre",
+        "veo el mensaje \"Registre al menos una lista\""
+      ]
+    }
+  ]
+}

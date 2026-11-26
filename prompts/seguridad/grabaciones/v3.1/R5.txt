@@ -1,0 +1,29 @@
+{
+  "historia_id": "R5",
+  "invest_ok": true,
+  "preguntas": [],
+  "escenarios": [
+    {
+      "titulo": "Huella coincidente",
+      "tipo": "exito",
+      "dado": [
+        "un archivo de urna exportado sin modificaciones"
+      ],
+      "cuando": "el auditor compara la huella",
+      "entonces": [
+        "ve que ambas huellas coinciden"
+      ]
+    },
+    {
+      "titulo": "Huella distinta",
+      "tipo": "error",
+      "dado": [
+        "un archivo de urna modificado"
+      ],
+      "cuando": "el auditor compara la huella",
+      "entonces": [
+        "ve una advertencia de que las huellas no coinciden"
+      ]
+    }
+  ]
+}

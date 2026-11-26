@@ -1,0 +1,30 @@
+{
+  "historia_id": "R4",
+  "invest_ok": true,
+  "preguntas": [],
+  "escenarios": [
+    {
+      "titulo": "Exportar padrón",
+      "tipo": "exito",
+      "dado": [
+        "un miembro del comité con el padrón cargado"
+      ],
+      "cuando": "solicita exportar el padrón",
+      "entonces": [
+        "descarga el archivo del padrón"
+      ]
+    },
+    {
+      "titulo": "Padrón vacío",
+      "tipo": "error",
+      "dado": [
+        "un padrón sin estudiantes cargados"
+      ],
+      "cuando": "solicita exportarlo",
+      "entonces": [
+        "no se genera ningún archivo",
+        "veo el mensaje \"El padrón está vacío\""
+      ]
+    }
+  ]
+}

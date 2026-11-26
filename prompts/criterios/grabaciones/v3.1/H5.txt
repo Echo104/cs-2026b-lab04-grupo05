@@ -1,0 +1,42 @@
+{
+  "historia_id": "H5",
+  "invest_ok": true,
+  "preguntas": [],
+  "escenarios": [
+    {
+      "titulo": "Conteo al cierre",
+      "tipo": "exito",
+      "dado": [
+        "una elección cerrada con 3 votos para la Lista 1 y 2 para la Lista 2"
+      ],
+      "cuando": "el sistema realiza el conteo",
+      "entonces": [
+        "veo 3 votos para la Lista 1 y 2 para la Lista 2"
+      ]
+    },
+    {
+      "titulo": "Elección sin votos",
+      "tipo": "borde",
+      "dado": [
+        "una elección cerrada sin votos emitidos"
+      ],
+      "cuando": "se realiza el conteo",
+      "entonces": [
+        "veo 0 votos para cada lista",
+        "el resultado indica que no hubo participación"
+      ]
+    },
+    {
+      "titulo": "Empate",
+      "tipo": "borde",
+      "dado": [
+        "una elección cerrada con 4 votos para cada una de dos listas"
+      ],
+      "cuando": "se realiza el conteo",
+      "entonces": [
+        "veo el empate entre ambas listas",
+        "el sistema no declara una lista ganadora"
+      ]
+    }
+  ]
+}

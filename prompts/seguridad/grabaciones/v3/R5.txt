@@ -1,0 +1,29 @@
+{
+  "historia_id": "R5",
+  "invest_ok": true,
+  "preguntas": [],
+  "escenarios": [
+    {
+      "titulo": "Verify fingerprint",
+      "tipo": "exito",
+      "dado": [
+        "an exported ballot box file"
+      ],
+      "cuando": "the auditor compares the fingerprint",
+      "entonces": [
+        "the auditor sees that both fingerprints match"
+      ]
+    },
+    {
+      "titulo": "Fingerprint mismatch",
+      "tipo": "error",
+      "dado": [
+        "a ballot box file that was modified"
+      ],
+      "cuando": "the auditor compares the fingerprint",
+      "entonces": [
+        "the auditor sees a mismatch warning"
+      ]
+    }
+  ]
+}

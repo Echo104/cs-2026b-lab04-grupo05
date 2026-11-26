@@ -1,0 +1,31 @@
+{
+  "historia_id": "H9",
+  "invest_ok": true,
+  "preguntas": [],
+  "escenarios": [
+    {
+      "titulo": "Resultados publicados",
+      "tipo": "exito",
+      "dado": [
+        "una elección escrutada y con acta firmada"
+      ],
+      "cuando": "un estudiante abre la página de resultados",
+      "entonces": [
+        "ve los votos por lista",
+        "ve la fecha de publicación"
+      ]
+    },
+    {
+      "titulo": "Resultados aún no disponibles",
+      "tipo": "borde",
+      "dado": [
+        "una elección cerrada pero todavía no escrutada"
+      ],
+      "cuando": "un estudiante abre la página de resultados",
+      "entonces": [
+        "no ve resultados",
+        "ve el mensaje \"Los resultados aún no están publicados\""
+      ]
+    }
+  ]
+}

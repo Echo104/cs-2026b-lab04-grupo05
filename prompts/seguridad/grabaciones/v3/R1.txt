@@ -1,0 +1,29 @@
+{
+  "historia_id": "R1",
+  "invest_ok": true,
+  "preguntas": [],
+  "escenarios": [
+    {
+      "titulo": "Ver candidatos",
+      "tipo": "exito",
+      "dado": [
+        "una elección abierta con dos listas"
+      ],
+      "cuando": "abro la página de votación",
+      "entonces": [
+        "veo las dos listas con sus candidatos"
+      ]
+    },
+    {
+      "titulo": "Elección sin listas",
+      "tipo": "borde",
+      "dado": [
+        "una elección sin listas registradas"
+      ],
+      "cuando": "abro la página de votación",
+      "entonces": [
+        "veo el mensaje \"Aún no hay listas registradas\""
+      ]
+    }
+  ]
+}

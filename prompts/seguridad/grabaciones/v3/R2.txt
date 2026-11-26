@@ -1,0 +1,40 @@
+{
+  "historia_id": "R2",
+  "invest_ok": true,
+  "preguntas": [],
+  "escenarios": [
+    {
+      "titulo": "Conteo por lista",
+      "tipo": "exito",
+      "dado": [
+        "una elección cerrada"
+      ],
+      "cuando": "el comité consulta los resultados",
+      "entonces": [
+        "ve cuántos votos recibió cada lista"
+      ]
+    },
+    {
+      "titulo": "Elección aún abierta",
+      "tipo": "borde",
+      "dado": [
+        "una elección todavía abierta"
+      ],
+      "cuando": "el comité consulta los resultados",
+      "entonces": [
+        "no ve resultados parciales"
+      ]
+    },
+    {
+      "titulo": "Consulta de voto individual",
+      "tipo": "exito",
+      "dado": [
+        "una elección cerrada"
+      ],
+      "cuando": "el administrador consulta por qué lista votó cada estudiante",
+      "entonces": [
+        "ve la lista elegida por cada estudiante"
+      ]
+    }
+  ]
+}

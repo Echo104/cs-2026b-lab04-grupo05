@@ -1,0 +1,29 @@
+{
+  "historia_id": "R3",
+  "invest_ok": true,
+  "preguntas": [],
+  "escenarios": [
+    {
+      "titulo": "Comprobante visible",
+      "tipo": "exito",
+      "dado": [
+        "un estudiante que acaba de votar"
+      ],
+      "cuando": "abro mi comprobante",
+      "entonces": [
+        "veo el código y la fecha de mi participación"
+      ]
+    },
+    {
+      "titulo": "Comprobante sin la opción votada",
+      "tipo": "borde",
+      "dado": [
+        "un estudiante que votó por una lista"
+      ],
+      "cuando": "abro mi comprobante",
+      "entonces": [
+        "no veo el nombre de la lista elegida"
+      ]
+    }
+  ]
+}

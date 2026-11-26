@@ -1,0 +1,6 @@
+{
+  "historia_id": "R6",
+  "invest_ok": true,
+  "preguntas": [],
+  "escenarios": []
+}

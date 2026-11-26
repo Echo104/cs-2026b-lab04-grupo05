@@ -1,4 +1,4 @@
-description: "VotoEPIS — Tarea A: criterios de aceptación Gherkin (v1, v2, v3)"
+description: "VotoEPIS — Tarea A: criterios de aceptación Gherkin (v1, v2, v3, v3.1)"
 
 prompts:
   - id: file://v1.txt
@@ -7,6 +7,8 @@ prompts:
     label: v2
   - id: file://v3.txt
     label: v3
+  - id: file://v3.1.txt
+    label: v3.1
 
 providers:
   - id: file://../proveedor_grabado.py   # respuestas grabadas; reemplazable por un modelo real
