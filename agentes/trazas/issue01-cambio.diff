@@ -1,0 +1,18 @@
+--- a/src/votacion/padron.py
++++ b/src/votacion/padron.py
+@@ -20,11 +20,12 @@
+ 
+     def registrar_participacion(self, correo: str) -> None:
+         """Marca que el estudiante ya participó; lanza ``ParticipacionDuplicada`` si lo repite."""
+-        if correo.lower() not in self._habilitados:
++        clave = correo.strip().lower()
++        if clave not in self._habilitados:
+             raise ValueError("El correo no figura en el padrón")
+-        if correo in self._participaron:
++        if clave in self._participaron:
+             raise ParticipacionDuplicada(f"{correo} ya participó en la elección")
+-        self._participaron.add(correo)
++        self._participaron.add(clave)
+ 
+     def total_participantes(self) -> int:
+         return len(self._participaron)

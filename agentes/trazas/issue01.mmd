@@ -1,0 +1,27 @@
+sequenceDiagram
+    autonumber
+    actor H as Humano
+    participant A0 as Ejecutor
+    participant P as Política
+    participant T as Herramientas
+    Note over A0,T: sandbox: copia del repositorio
+    H->>A0: objetivo
+    Note over A0: contrato inválido (paso 1)
+    A0->>T: leer_archivo(issues/ISSUE-01.md)
+    T-->>A0: Issue n.º1: Un estudiante puede votar dos v…
+    A0->>T: ejecutar_pruebas(tests/test_issue_01_voto_do…)
+    T-->>A0: FAILED tests/test_issue_01_voto_doble.py::t…
+    A0->>T: buscar(registrar_participacion)
+    T-->>A0: src/votacion/padron.py:21: def registrar_pa…
+    Note over A0: contrato inválido (paso 5)
+    A0->>T: leer_archivo(src/votacion/padron.py)
+    T-->>A0: """Padrón y participación (RF-03): un estud…
+    A0->>T: editar_archivo(src/votacion/padron.py)
+    T-->>A0: OK: src/votacion/padron.py modificado
+    A0->>T: ejecutar_pruebas(tests/test_issue_01_voto_do…)
+    T-->>A0: 3 passed in 0.00s
+    A0->>P: ejecutar_comando
+    P--xA0: BLOQUEADO
+    A0->>T: ver_cambios
+    T-->>A0: --- a/src/votacion/padron.py
+    A0->>H: Corregí el issue n.º1: Padron.registrar_participacion ahora…

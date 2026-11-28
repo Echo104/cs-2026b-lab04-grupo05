@@ -1,0 +1,70 @@
+[
+  "Voy a empezar leyendo el issue para entender el problema.",
+  {
+    "pensamiento": "Debo responder en JSON. Leo el issue para conocer el error y la prueba que lo reproduce.",
+    "accion": "leer_archivo",
+    "args": {
+      "ruta": "issues/ISSUE-01.md"
+    }
+  },
+  {
+    "pensamiento": "Reproduzco el error antes de tocar el código.",
+    "accion": "ejecutar_pruebas",
+    "args": {
+      "ruta": "tests/test_issue_01_voto_doble.py"
+    }
+  },
+  {
+    "pensamiento": "Falla la prueba del issue. Busco dónde se registra la participación.",
+    "accion": "buscar",
+    "args": {
+      "patron": "registrar_participacion"
+    }
+  },
+  {
+    "pensamiento": "Quiero ver solo la función completa, sin leer todo el archivo.",
+    "accion": "mostrar_funcion",
+    "args": {
+      "nombre": "registrar_participacion"
+    }
+  },
+  {
+    "pensamiento": "Esa herramienta no existe. Leo el módulo del padrón completo.",
+    "accion": "leer_archivo",
+    "args": {
+      "ruta": "src/votacion/padron.py"
+    }
+  },
+  {
+    "pensamiento": "La causa: se valida el padrón con minúsculas, pero la participación se guarda y compara con el correo tal como se escribió. Normalizo una sola vez y uso la misma clave para comparar y para registrar.",
+    "accion": "editar_archivo",
+    "args": {
+      "ruta": "src/votacion/padron.py",
+      "antes": "        if correo.lower() not in self._habilitados:\n            raise ValueError(\"El correo no figura en el padrón\")\n        if correo in self._participaron:\n            raise ParticipacionDuplicada(f\"{correo} ya participó en la elección\")\n        self._participaron.add(correo)",
+      "despues": "        clave = correo.strip().lower()\n        if clave not in self._habilitados:\n            raise ValueError(\"El correo no figura en el padrón\")\n        if clave in self._participaron:\n            raise ParticipacionDuplicada(f\"{correo} ya participó en la elección\")\n        self._participaron.add(clave)"
+    }
+  },
+  {
+    "pensamiento": "Verifico que la prueba del issue pasa y que las otras dos siguen en verde.",
+    "accion": "ejecutar_pruebas",
+    "args": {
+      "ruta": "tests/test_issue_01_voto_doble.py"
+    }
+  },
+  {
+    "pensamiento": "Quiero medir la cobertura del módulo antes de terminar.",
+    "accion": "ejecutar_comando",
+    "args": {
+      "comando": "pip install pytest-cov"
+    }
+  },
+  {
+    "pensamiento": "No puedo instalar paquetes; reviso mi diff antes de terminar.",
+    "accion": "ver_cambios",
+    "args": {}
+  },
+  {
+    "pensamiento": "Cambio mínimo y verificado.",
+    "final": "Corregí el issue #1: Padron.registrar_participacion ahora normaliza el correo (strip y minúsculas) y usa esa misma clave para comparar y registrar, de modo que ALUMNO@unsa.edu.pe ya no puede participar después de alumno@unsa.edu.pe. Pruebas: 3 aprobadas. No modifiqué las pruebas. Intenté instalar pytest-cov y la política lo bloqueó. Queda para el humano: revisar el diff y aprobar el cambio."
+  }
+]
