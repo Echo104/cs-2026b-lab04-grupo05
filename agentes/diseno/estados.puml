@@ -1,0 +1,34 @@
+@startuml
+title El bucle del agente como máquina de estados (agentes/agente/nucleo.py)
+skinparam shadowing false
+hide empty description
+
+PreparandoSandbox : copia aislada del repositorio\nsin datos reales ni credenciales
+Decidiendo : el modelo propone\npensamiento + acción
+ValidandoContrato : ¿cumple el protocolo?
+EvaluandoPolitica : ¿está permitida?\n(permisos del rol, pasos)
+Ejecutando : herramienta real\nsobre la copia
+Observando : se agrega al historial
+SinDecisiones : el modelo no responde\n(trayectoria agotada)
+
+[*] --> PreparandoSandbox : issue recibido
+PreparandoSandbox --> Decidiendo : sandbox listo / INICIO
+Decidiendo --> ValidandoContrato : decisión JSON
+Decidiendo --> SinDecisiones : [sin respuesta]
+ValidandoContrato --> Decidiendo : [inválida] / CONTRATO_INVALIDO
+ValidandoContrato --> Finalizado : [es "final"]
+ValidandoContrato --> EvaluandoPolitica : [es "accion"]
+EvaluandoPolitica --> Decidiendo : [denegada] / BLOQUEADO
+EvaluandoPolitica --> LimiteAlcanzado : [paso > max_pasos]
+EvaluandoPolitica --> Ejecutando : [permitida]
+Ejecutando --> Observando : resultado o error
+Observando --> Decidiendo
+Finalizado --> [*] : respuesta final
+LimiteAlcanzado --> [*] : sin respuesta
+SinDecisiones --> [*]
+
+note right of PreparandoSandbox
+  Estado propio de VotoEPIS: el agente trabaja en una copia
+  del repositorio; tests/ es una ruta protegida.
+end note
+@enduml
