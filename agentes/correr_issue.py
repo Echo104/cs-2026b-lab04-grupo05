@@ -3,6 +3,7 @@
 Uso (desde la raíz del repositorio o desde agentes/):
     python agentes/correr_issue.py 1                  # reproduce la trayectoria grabada del issue 1
     python agentes/correr_issue.py 1 --interactivo    # usted pega las respuestas de su asistente de IA
+    python agentes/correr_issue.py 3 --herramientas base --trayectoria agentes/trayectorias/issue03_base.json --traza issue03_base
 
 El agente trabaja en un directorio temporal, genera la traza (JSONL), el diagrama (.mmd/.png) y el
 cambio propuesto (.diff). Quien incorpora el cambio al repositorio es una persona.
@@ -22,7 +23,7 @@ sys.path.insert(0, str(AGENTES))
 from agente.herramientas import Herramientas          # noqa: E402
 from agente.modelos import ModeloGrabado, ModeloInteractivo  # noqa: E402
 from agente.nucleo import Agente                      # noqa: E402
-from agente.politica import Politica                  # noqa: E402
+from agente.politica import BASICAS, Politica          # noqa: E402
 from agente.protocolo import PROTOCOLO                # noqa: E402
 from agente import traza as tz                        # noqa: E402
 
@@ -48,19 +49,24 @@ def main() -> None:
     ap.add_argument("--interactivo", action="store_true", help="usar ModeloInteractivo (copiar y pegar con su asistente)")
     ap.add_argument("--trayectoria", help="archivo JSON de decisiones (por defecto trayectorias/issueNN.json)")
     ap.add_argument("--traza", help="nombre base de la traza (por defecto issueNN)")
+    ap.add_argument("--herramientas", choices=["todas", "base"], default="todas",
+                    help="'base' = solo las 7 herramientas de E2 (control para comparar con mapa_repo y las notas)")
     args = ap.parse_args()
 
     nombre = args.traza or f"issue{args.issue:02d}"
     trayectoria = pathlib.Path(args.trayectoria) if args.trayectoria else AGENTES / "trayectorias" / f"issue{args.issue:02d}.json"
     copia = preparar_copia()
-    h = Herramientas(copia)
+    habilitadas = BASICAS if args.herramientas == "base" else None
+    h = Herramientas(copia, habilitadas)
     modelo = ModeloInteractivo(trayectoria) if args.interactivo else ModeloGrabado.desde_archivo(trayectoria)
-    agente = Agente("Ejecutor", modelo, h, Politica(max_pasos=12), objetivo(args.issue, h),
+    agente = Agente("Ejecutor", modelo, h, Politica(max_pasos=12, herramientas_permitidas=set(habilitadas or Politica().herramientas_permitidas)), objetivo(args.issue, h),
                     AGENTES / "trazas" / f"{nombre}.jsonl")
     agente.registrar_preparacion(f"copia del repositorio en {copia}")
     resumen = agente.ejecutar()
 
     (AGENTES / "trazas" / f"{nombre}-cambio.diff").write_text(h.ver_cambios(), encoding="utf-8")
+    if (copia / "notas.md").exists():
+        shutil.copy(copia / "notas.md", AGENTES / "trazas" / f"{nombre}-notas.md")
     print(f"\nRESUMEN DEL AGENTE:\n{resumen}\n")
     tz.main([str(AGENTES / "trazas" / f"{nombre}.jsonl")])
     print(f"Cambio propuesto: agentes/trazas/{nombre}-cambio.diff (revíselo y aplíquelo usted; el agente no fusiona nada)")

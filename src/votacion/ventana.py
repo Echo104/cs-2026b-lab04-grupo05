@@ -9,6 +9,4 @@ from datetime import datetime
 
 
 def esta_abierta(apertura: datetime, cierre: datetime, ahora: datetime) -> bool:
-    despues_de_apertura = apertura <= ahora
-    antes_del_cierre = (ahora.date(), ahora.hour) < (cierre.date(), cierre.hour)
-    return despues_de_apertura and antes_del_cierre
+    return apertura <= ahora < cierre

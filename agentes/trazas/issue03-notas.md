@@ -1,0 +1,1 @@
+- Hipótesis: la ventana de votación (RF-07) está en src/votacion/ventana.py::esta_abierta; falta confirmar la causa leyendo el archivo.

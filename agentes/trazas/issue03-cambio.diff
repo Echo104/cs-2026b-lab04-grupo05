@@ -1,0 +1,10 @@
+--- a/src/votacion/ventana.py
++++ b/src/votacion/ventana.py
+@@ -9,6 +9,4 @@
+ 
+ 
+ def esta_abierta(apertura: datetime, cierre: datetime, ahora: datetime) -> bool:
+-    despues_de_apertura = apertura <= ahora
+-    antes_del_cierre = (ahora.date(), ahora.hour) < (cierre.date(), cierre.hour)
+-    return despues_de_apertura and antes_del_cierre
++    return apertura <= ahora < cierre

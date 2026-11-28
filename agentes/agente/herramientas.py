@@ -5,6 +5,7 @@ errores vuelven al agente como observaciones.
 """
 from __future__ import annotations
 
+import ast
 import difflib
 import os
 import pathlib
@@ -14,12 +15,28 @@ import subprocess
 import sys
 
 EXCLUIDOS = {".git", "__pycache__", "node_modules", ".pytest_cache", "trazas"}
+NOTAS = "notas.md"               # memoria de notas (Sección 1.6): vive en la copia del repositorio
+MAX_NOTA, MAX_NOTAS_TOTAL = 300, 2000
+LIMITE_MAPA = 6000
+
+
+def _nombres(funcion) -> str:
+    """Solo los nombres de los parámetros (sin anotaciones ni valores por defecto): el mapa debe ser corto."""
+    a = funcion.args
+    nombres = [x.arg for x in a.posonlyargs + a.args + a.kwonlyargs]
+    if a.vararg:
+        nombres.append("*" + a.vararg.arg)
+    if a.kwarg:
+        nombres.append("**" + a.kwarg.arg)
+    return ", ".join(n for n in nombres if n != "self")
 SUFIJOS_TEXTO = {".py", ".md", ".txt", ".toml", ".cfg", ".ini", ".yml", ".yaml", ".json"}
 
 
 class Herramientas:
-    def __init__(self, raiz):
+    def __init__(self, raiz, habilitadas=None):
+        """``habilitadas``: nombres de las herramientas que el modelo puede ver (None = todas)."""
         self.raiz = pathlib.Path(raiz).resolve()
+        self._habilitadas = None if habilitadas is None else set(habilitadas)
         self._base = self._leer_todo()                     # instantánea para ver_cambios
 
     # ---------------------------------------------------------------- utilidades
@@ -40,6 +57,8 @@ class Herramientas:
     def _leer_todo(self) -> dict[str, str]:
         base = {}
         for archivo in self._archivos():
+            if archivo.relative_to(self.raiz).as_posix() == NOTAS:
+                continue                                   # las notas no son parte del cambio propuesto
             try:
                 base[archivo.relative_to(self.raiz).as_posix()] = archivo.read_text(encoding="utf-8")
             except UnicodeDecodeError:
@@ -58,7 +77,7 @@ class Herramientas:
     # ---------------------------------------------------------------- catálogo
     def catalogo(self) -> dict[str, str]:
         """Nombre -> descripción (qué hace, parámetros y qué devuelve). El modelo elige solo con esto."""
-        return {
+        todas = {
             "listar_archivos": "listar_archivos(ruta='.'): lista los archivos de texto de una carpeta del repositorio.",
             "leer_archivo": "leer_archivo(ruta): devuelve el contenido de un archivo (máx. 6000 caracteres).",
             "buscar": "buscar(patron, ruta='.'): busca una expresión regular; devuelve 'archivo:línea: texto' (máx. 20).",
@@ -66,7 +85,11 @@ class Herramientas:
             "editar_archivo": "editar_archivo(ruta, antes, despues): reemplaza un fragmento que debe aparecer EXACTAMENTE una vez.",
             "ver_cambios": "ver_cambios(): devuelve el diff de todo lo modificado desde el inicio de la tarea.",
             "ejecutar_comando": "ejecutar_comando(comando): solo 'python -m pytest', 'radon cc', 'lint-imports' o 'git status/diff'.",
+            "mapa_repo": "mapa_repo(ruta='src'): estructura del código (módulos con la primera línea de su docstring, clases con sus métodos y funciones, con los nombres de sus parámetros), obtenida con ast; úsala ANTES de leer archivos completos para ubicar dónde está la lógica.",
+            "anotar": "anotar(texto): guarda una nota breve (hipótesis o archivos ya revisados) en notas.md; máx. 300 caracteres por nota.",
+            "leer_notas": "leer_notas(): devuelve las notas guardadas en esta tarea.",
         }
+        return todas if self._habilitadas is None else {k: v for k, v in todas.items() if k in self._habilitadas}
 
     # ---------------------------------------------------------------- herramientas
     def listar_archivos(self, ruta: str = ".") -> str:
@@ -129,3 +152,46 @@ class Herramientas:
             return self._correr(partes)
         except FileNotFoundError:
             return f"ERROR: FileNotFoundError: comando no instalado en este entorno ({partes[0]})"
+
+    # ---------------------------------------------------------------- E4: mapa del repositorio y notas
+    def mapa_repo(self, ruta: str = "src") -> str:
+        base = self._ruta(ruta)
+        if not base.exists():
+            return f"ERROR: {ruta} no existe"
+        archivos = [base] if base.is_file() else sorted(a for a in base.rglob("*.py") if "__pycache__" not in a.parts)
+        lineas = []
+        for archivo in archivos:
+            rel = archivo.relative_to(self.raiz).as_posix()
+            try:
+                arbol = ast.parse(archivo.read_text(encoding="utf-8"))
+            except SyntaxError as e:
+                lineas.append(f"{rel}  [ERROR de sintaxis: {e.msg}]")
+                continue
+            resumen = (ast.get_docstring(arbol) or "").splitlines()
+            lineas.append(f"{rel}" + (f"  — {resumen[0][:60]}" if resumen else ""))
+            for nodo in arbol.body:
+                if isinstance(nodo, ast.ClassDef):
+                    metodos = [f"{m.name}({_nombres(m)})" for m in nodo.body
+                               if isinstance(m, (ast.FunctionDef, ast.AsyncFunctionDef)) and not m.name.startswith("__")]
+                    lineas.append(f"  class {nodo.name}" + (": " + ", ".join(metodos) if metodos else ""))
+                elif isinstance(nodo, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    lineas.append(f"  def {nodo.name}({_nombres(nodo)})")
+        salida = "\n".join(lineas) or "(sin archivos .py)"
+        return salida if len(salida) <= LIMITE_MAPA else salida[:LIMITE_MAPA] + "\n... (recortado: pida una subcarpeta)"
+
+    def anotar(self, texto: str) -> str:
+        if not isinstance(texto, str) or not texto.strip():
+            return "ERROR: la nota debe ser un texto no vacío"
+        if len(texto) > MAX_NOTA:
+            return f"ERROR: la nota supera {MAX_NOTA} caracteres"
+        archivo = self.raiz / NOTAS
+        previo = archivo.read_text(encoding="utf-8") if archivo.exists() else ""
+        linea = "- " + " ".join(texto.split()) + "\n"
+        if len(previo) + len(linea) > MAX_NOTAS_TOTAL:
+            return f"ERROR: las notas superarían {MAX_NOTAS_TOTAL} caracteres; resuma o priorice"
+        archivo.write_text(previo + linea, encoding="utf-8")
+        return f"OK: nota guardada ({previo.count(chr(10)) + 1} en total)"
+
+    def leer_notas(self) -> str:
+        archivo = self.raiz / NOTAS
+        return archivo.read_text(encoding="utf-8") if archivo.exists() else "(sin notas)"

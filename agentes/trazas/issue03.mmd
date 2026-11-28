@@ -1,0 +1,25 @@
+sequenceDiagram
+    autonumber
+    actor H as Humano
+    participant A0 as Ejecutor
+    participant P as Política
+    participant T as Herramientas
+    Note over A0,T: sandbox: copia del repositorio
+    H->>A0: objetivo
+    A0->>T: leer_archivo(issues/ISSUE-03.md)
+    T-->>A0: Issue n.º3: La elección cierra antes de la …
+    A0->>T: mapa_repo(src)
+    T-->>A0: src/votacion/__init__.py
+    A0->>T: anotar(Hipótesis: la ventana de vo…)
+    T-->>A0: OK: nota guardada (1 en total)
+    A0->>T: leer_archivo(src/votacion/ventana.py)
+    T-->>A0: """Ventana de votación (RF-07): la elección…
+    A0->>T: ejecutar_pruebas(tests/test_issue_03_cierre_…)
+    T-->>A0: FAILED tests/test_issue_03_cierre_anticipad…
+    A0->>T: editar_archivo(src/votacion/ventana.py)
+    T-->>A0: OK: src/votacion/ventana.py modificado
+    A0->>T: ejecutar_pruebas(tests/test_issue_03_cierre_…)
+    T-->>A0: 3 passed in 0.00s
+    A0->>T: leer_notas
+    T-->>A0: - Hipótesis: la ventana de votación (RF-07)…
+    A0->>H: Corregí el issue n.º3: esta_abierta() comparaba solo (fecha…
